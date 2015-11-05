@@ -1,0 +1,198 @@
+<link rel="import" href="../layout/layout.html">
+<link rel="import" href="../at-core-theme/at-core-theme.html">
+<link rel="import" href="../at-core-resize-sensor/at-core-resize-sensor.html">
+
+<dom-module id="at-form-textarea">
+  <style>
+    .wrapper {
+      position: relative;
+    }
+
+    .clear-float {
+      clear: both;
+    }
+
+    .content-wrapper {}
+
+    .content-wrapper > .label-container {
+      margin: 0 8px;
+    }
+
+    .content-wrapper > .value-container {
+      margin: 0 8px;
+    }
+
+    .content-wrapper > .hint-container {
+      margin: 0 8px;
+    }
+
+    #label {
+      font-weight: bold;
+    }
+
+    #valueProvider {
+      max-height: none;
+    }
+  </style>
+  <template>
+    <at-core-theme></at-core-theme>
+    <div class="wrapper">
+      <at-core-resize-sensor id="resizeSensor"></at-core-resize-sensor>
+      <div class="clear-float"></div>
+      <div class="vertical-layout content-wrapper">
+        <div class="label-container">
+          <label id="label">{{label}}</label>
+        </div>
+        <div class="value-container">
+          <div class="ui form">
+            <div id="valueProviderWrapper" class="field">
+              <textarea id="valueProvider"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="hint-container">
+          <p id="hint" class="hint"></p>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script>
+    'use strict';
+    Polymer({
+      is: 'at-form-textarea',
+      properties: {
+        label: {
+          type: String,
+          value: ''
+        },
+        value: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        disabled: {
+          type: Boolean,
+          value: false,
+          observer: 'disabledChanged'
+        },
+        required: {
+          type: Boolean,
+          value: false,
+          observer: 'requiredChanged'
+        },
+        valid: {
+          type: Boolean,
+          value: true,
+          notify: true
+        },
+        /**
+         * if maxchars == 0 no check should be done,
+         * if != 0 total chars can't be longer then maxchars
+         */
+        maxChars: {
+          type: Number,
+          value: 0,
+          observer: 'maxCharsChanged'
+        },
+        /**
+         * if maxlines == 0 the textarea should autogrow
+         * if maxlines != 0 the textarea should be rendered with the fixed number of lines
+         */
+        maxLines: {
+          type: Number,
+          value: 0,
+          observer: 'maxLinesChanged'
+        }
+      },
+      _messages: {
+        maxCharsHint: "You can not enter more than {maxChars} characters."
+      },
+      _scopeCssViaAttr: true,
+      attached: function() {
+        var self = this;
+        this.$.resizeSensor.addEventListener('resize-sensed', function() {
+          if (self.maxLines === 0) {
+            self.autoGrowHelper();
+          }
+        });
+      },
+      ready: function() {
+        var valueProvider = this.$.valueProvider;
+        var self = this;
+        valueProvider.addEventListener('change', function(event) {
+          event.stopPropagation();
+          self.value = valueProvider.value;
+          self._validate();
+        });
+
+        valueProvider.addEventListener('blur', function(event) {
+          event.stopPropagation();
+          self.value = valueProvider.value;
+          self._validate();
+        });
+
+        valueProvider.addEventListener('input', function(event) {
+          event.stopPropagation();
+          var maxChars = parseInt(self.maxChars);
+          self.autoGrowHelper();
+
+          if (maxChars !== 0) {
+            // handle maxChars here
+            var valueLength = valueProvider.value.length;
+            if (valueLength >= maxChars) {
+              valueProvider.value = valueProvider.value.substring(0, maxChars);
+              Polymer.dom(valueProvider).innerHTML = valueProvider.value;
+              Polymer.dom(self.$.hint).innerHTML = self._messages.maxCharsHint.replace('{maxChars}', maxChars);
+            }
+          }
+        });
+
+        valueProvider.addEventListener('resize', function(event) {
+          self.autoGrowHelper();
+        });
+      },
+      maxCharsChanged: function (newValue, oldValue) {
+        var
+          vp = this.$.valueProvider,
+          maxChars = parseInt(newValue);
+        if (maxChars > 0) {
+          vp.value = vp.value.substring(0, maxChars);
+          Polymer.dom(vp).innerHTML = vp.value;
+        }
+        Polymer.dom(this.$.hint).innerHTML = '';
+      },
+      maxLinesChanged: function(newValue, oldValue) {
+        if (newValue === 0) {
+          if (valueProvider.scrollHeight > 14) {
+            // handle autogrow here
+            autoGrowHelper();
+          } else {
+
+          }
+        } else {
+          valueProvider.rows = newValue;
+          valueProvider.style.height = '';
+        }
+      },
+      autoGrowHelper: function() {
+        var valueProvider = this.$.valueProvider;
+        valueProvider.style.height = 'auto';
+        valueProvider.style.height = (valueProvider.scrollHeight + 3) + 'px';
+      },
+      disabledChanged: function(newValue, oldValue) {
+        this.$.valueProvider.disabled = Boolean(newValue);
+      },
+      requiredChanged: function(newValue, oldValue) {
+        this._validate();
+      },
+      _validate: function() {
+        var valueProvider = this.$.valueProvider;
+        this.valid = !(this.required && this._isNullOrEmpty(valueProvider.value));
+        this.toggleClass('error', !this.valid, this.$.valueProviderWrapper);
+      },
+      _isNullOrEmpty: function(obj) {
+        return obj == null || obj === '';
+      }
+    });
+  </script>
+</dom-module>

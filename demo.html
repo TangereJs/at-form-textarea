@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>at-form-textarea demo</title>
+  <script src="../webcomponentsjs/webcomponents-lite.js" charset="utf-8"></script>
+  <link rel="import" href="../polymer/polymer.html">
+  <link rel="import" href="../layout/layout.html">
+  <link rel="import" href="../at-form-textarea/at-form-textarea.html">
+
+  <style media="screen">
+    #valueEcho {
+      border: 1px solid #AABBCC;
+    }
+
+    .controls-container {
+
+    }
+
+    .controls-container > .control-container {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="vertical layout">
+    <div class="">
+      <h3>This is at-form-textarea demo</h3>
+    </div>
+    <div class="horizontal layout">
+      <div class="content-container vertical layout flex-9">
+        <at-form-textarea id="demoTa" label="This is demo label!"></at-form-textarea>
+      </div>
+      <div class="controls-container vertical layout flex-3">
+        <div class="control-container">
+          <p>Element is <b id="validEcho">valid</b></p>
+        </div>
+        <div class="control-container">
+          <input type="checkbox" id="disableToggle" />
+          <label for="disableToggle">Disable</label>
+        </div>
+        <div class="control-container">
+          <input type="checkbox" id="required" />
+          <label for="required">Required</label>
+        </div>
+        <div class="control-container">
+          <label for="maxChars">Maximum characters (0=infinite)</label>
+          <input type="number" id="maxChars" />
+        </div>
+        <div class="control-container">
+          <label for="maxLines">Maximum lines (0=infinite)</label>
+          <input type="number" id="maxLines" />
+        </div>
+        <div class="control-container">
+          <label>Value:</label>
+          <p id="valueEcho"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('WebComponentsReady', function(event){
+      var demoTa = document.getElementById('demoTa');
+      var valueEcho = document.getElementById('valueEcho');
+      demoTa.addEventListener('value-changed', function(event){
+        valueEcho.innerHTML = demoTa.value;
+      });
+
+      var disableToggle = document.getElementById('disableToggle');
+      disableToggle.addEventListener('change', function(event){
+        demoTa.disabled = disableToggle.checked;
+      });
+
+      var requiredToggle = document.getElementById('required');
+      requiredToggle.addEventListener('change', function(event){
+        demoTa.required = requiredToggle.checked;
+      });
+
+      var validEcho = document.getElementById('validEcho');
+      demoTa.addEventListener('valid-changed', function(event){
+        var validText = event.detail.value ? "valid" : "invalid";
+        validEcho.innerHTML = validText;
+      });
+
+      var maxLines = document.getElementById('maxLines');
+      maxLines.value = demoTa.maxLines;
+      maxLines.addEventListener('change', function(event){
+        demoTa.maxLines = parseInt(maxLines.value);
+      });
+
+      var maxChars = document.getElementById('maxChars');
+      maxChars.value = demoTa.maxChars;
+      maxChars.addEventListener('change', function(event){
+        demoTa.maxChars = parseInt(maxChars.value);
+      });
+    });
+  </script>
+</body>
+
+</html>
