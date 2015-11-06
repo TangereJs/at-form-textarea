@@ -162,6 +162,7 @@
         Polymer.dom(this.$.hint).innerHTML = '';
       },
       maxLinesChanged: function(newValue, oldValue) {
+        var valueProvider = this.$.valueProvider;
         if (newValue === 0) {
           if (valueProvider.scrollHeight > 14) {
             // handle autogrow here
