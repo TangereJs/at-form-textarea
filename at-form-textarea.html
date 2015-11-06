@@ -35,6 +35,10 @@
       max-height: none;
       height: auto;
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
   <template>
     <at-core-theme></at-core-theme>
@@ -42,7 +46,7 @@
       <at-core-resize-sensor id="resizeSensor"></at-core-resize-sensor>
       <div class="clear-float"></div>
       <div class="vertical-layout content-wrapper">
-        <div class="label-container">
+        <div id="labelContainer" class="label-container">
           <label id="label">{{label}}</label>
         </div>
         <div class="value-container">
@@ -104,12 +108,20 @@
           type: Number,
           value: 0,
           observer: 'maxLinesChanged'
+        },
+        hideTitle: {
+          type: Boolean,
+          value: false,
+          observer: 'hideTitleChanged'
         }
       },
       _messages: {
         maxCharsHint: "You can not enter more than {maxChars} characters."
       },
       _scopeCssViaAttr: true,
+      hideTitleChanged: function (newValue, oldValue) {
+        this.toggleClass('hidden', newValue, this.$.labelContainer);
+      },
       attached: function() {
         var self = this;
         this.$.resizeSensor.addEventListener('resize-sensed', function() {
