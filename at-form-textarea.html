@@ -31,7 +31,9 @@
     }
 
     #valueProvider {
+      min-height: unset;
       max-height: none;
+      height: auto;
     }
   </style>
   <template>
@@ -46,7 +48,7 @@
         <div class="value-container">
           <div class="ui form">
             <div id="valueProviderWrapper" class="field">
-              <textarea id="valueProvider"></textarea>
+              <textarea id="valueProvider" rows="3"></textarea>
             </div>
           </div>
         </div>
@@ -134,7 +136,9 @@
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
           var maxChars = parseInt(self.maxChars);
-          self.autoGrowHelper();
+          if (self.maxLines === 0) {
+            self.autoGrowHelper();
+          }
 
           if (maxChars !== 0) {
             // handle maxChars here
@@ -145,10 +149,6 @@
               Polymer.dom(self.$.hint).innerHTML = self._messages.maxCharsHint.replace('{maxChars}', maxChars);
             }
           }
-        });
-
-        valueProvider.addEventListener('resize', function(event) {
-          self.autoGrowHelper();
         });
       },
       maxCharsChanged: function (newValue, oldValue) {
@@ -170,8 +170,8 @@
 
           }
         } else {
+          valueProvider.style.height = 'auto';
           valueProvider.rows = newValue;
-          valueProvider.style.height = '';
         }
       },
       autoGrowHelper: function() {
