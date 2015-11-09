@@ -159,6 +159,8 @@
               valueProvider.value = valueProvider.value.substring(0, maxChars);
               Polymer.dom(valueProvider).innerHTML = valueProvider.value;
               Polymer.dom(self.$.hint).innerHTML = self._messages.maxCharsHint.replace('{maxChars}', maxChars);
+            } else {
+              Polymer.dom(self.$.hint).innerHTML = '';
             }
           }
         });
