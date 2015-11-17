@@ -185,6 +185,8 @@
       valueChanged:function (newValue, oldValue) {
         var valueProvider = this.$.valueProvider;
         valueProvider.value = newValue;
+        this._updateAutoGrow();
+        this._updateMaxChars();
       },
       maxCharsChanged: function (newValue, oldValue) {
         var
