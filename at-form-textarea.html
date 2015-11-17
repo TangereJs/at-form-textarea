@@ -74,7 +74,8 @@
         value: {
           type: String,
           value: '',
-          notify: true
+          notify: true,
+          observer: 'valueChanged'
         },
         disabled: {
           type: Boolean,
@@ -132,9 +133,7 @@
       attached: function() {
         var self = this;
         this.$.resizeSensor.addEventListener('resize-sensed', function() {
-          if (self.maxLines === 0) {
-            self.autoGrowHelper();
-          }
+          self._updateAutoGrow();
         });
       },
       ready: function() {
@@ -154,23 +153,38 @@
 
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
-          var maxChars = parseInt(self.maxChars);
-          if (self.maxLines === 0) {
-            self.autoGrowHelper();
-          }
-
-          if (maxChars !== 0) {
-            // handle maxChars here
-            var valueLength = valueProvider.value.length;
-            if (valueLength >= maxChars) {
-              valueProvider.value = valueProvider.value.substring(0, maxChars);
-              Polymer.dom(valueProvider).innerHTML = valueProvider.value;
-              Polymer.dom(self.$.hint).innerHTML = self._messages.maxCharsHint.replace('{maxChars}', maxChars);
-            } else {
-              Polymer.dom(self.$.hint).innerHTML = '';
-            }
-          }
+          self._updateAutoGrow();
+          self._updateMaxChars();
         });
+      },
+      _updateAutoGrow: function () {
+        var self = this;
+        if (self.maxLines === 0) {
+          self.autoGrowHelper();
+        }
+      },
+      _updateMaxChars: function () {
+        var
+          self = this,
+          valueProvider = self.$.valueProvider,
+          hint = self.$.hint,
+          maxChars = parseInt(self.maxChars);
+
+        if (maxChars !== 0) {
+          // handle maxChars here
+          var valueLength = valueProvider.value.length;
+          if (valueLength >= maxChars) {
+            valueProvider.value = valueProvider.value.substring(0, maxChars);
+            Polymer.dom(valueProvider).innerHTML = valueProvider.value;
+            Polymer.dom(hint).innerHTML = self._messages.maxCharsHint.replace('{maxChars}', maxChars);
+          } else {
+            Polymer.dom(hint).innerHTML = '';
+          }
+        }
+      },
+      valueChanged:function (newValue, oldValue) {
+        var valueProvider = this.$.valueProvider;
+        valueProvider.value = newValue;
       },
       maxCharsChanged: function (newValue, oldValue) {
         var
