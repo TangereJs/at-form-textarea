@@ -116,18 +116,18 @@
           observer: 'hideTitleChanged'
         }
       },
-	  $meta: {
-		description:"Textarea",
-		form: {
-		  type: "string",
-		  xtype: "textarea"
-		}
-	  },
+      $meta: {
+        title: "Textarea",
+        form: {
+          type: "string",
+          xtype: "textarea"
+        }
+      },
       _messages: {
         maxCharsHint: "You can not enter more than {maxChars} characters."
       },
       _scopeCssViaAttr: true,
-      hideTitleChanged: function (newValue, oldValue) {
+      hideTitleChanged: function(newValue, oldValue) {
         this.toggleClass('hidden', newValue, this.$.labelContainer);
       },
       attached: function() {
@@ -157,13 +157,13 @@
           self._updateMaxChars();
         });
       },
-      _updateAutoGrow: function () {
+      _updateAutoGrow: function() {
         var self = this;
         if (self.maxLines === 0) {
           self.autoGrowHelper();
         }
       },
-      _updateMaxChars: function () {
+      _updateMaxChars: function() {
         var
           self = this,
           valueProvider = self.$.valueProvider,
@@ -182,13 +182,13 @@
           }
         }
       },
-      valueChanged:function (newValue, oldValue) {
+      valueChanged: function(newValue, oldValue) {
         var valueProvider = this.$.valueProvider;
         valueProvider.value = newValue;
         this._updateAutoGrow();
         this._updateMaxChars();
       },
-      maxCharsChanged: function (newValue, oldValue) {
+      maxCharsChanged: function(newValue, oldValue) {
         var
           vp = this.$.valueProvider,
           maxChars = parseInt(newValue);
