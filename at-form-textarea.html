@@ -110,10 +110,10 @@
           value: 0,
           observer: 'maxLinesChanged'
         },
-        hideTitle: {
+        hideLabel: {
           type: Boolean,
           value: false,
-          observer: 'hideTitleChanged'
+          observer: 'hideLabelChanged'
         }
       },
       $meta: [{
@@ -125,7 +125,7 @@
         maxCharsHint: "You can not enter more than {maxChars} characters."
       },
       _scopeCssViaAttr: true,
-      hideTitleChanged: function(newValue, oldValue) {
+      hideLabelChanged: function(newValue, oldValue) {
         this.toggleClass('hidden', newValue, this.$.labelContainer);
       },
       attached: function() {
