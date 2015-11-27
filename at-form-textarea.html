@@ -211,8 +211,10 @@
       },
       autoGrowHelper: function() {
         var valueProvider = this.$.valueProvider;
-        valueProvider.style.height = 'auto';
-        valueProvider.style.height = (valueProvider.scrollHeight + 3) + 'px';
+        if (valueProvider.scrollHeight > 0) {
+          valueProvider.style.height = 'auto';
+          valueProvider.style.height = (valueProvider.scrollHeight + 3) + 'px';
+        }
       },
       disabledChanged: function(newValue, oldValue) {
         this.$.valueProvider.disabled = Boolean(newValue);
