@@ -113,6 +113,17 @@
           type: Boolean,
           value: false,
           observer: 'hideLabelChanged'
+        },
+        /**
+         * Hides the element. When hidden nothing is displayed for the element
+         * @property hide
+         * @type Boolean
+         * @default false
+         */
+        hide: {
+          type: Boolean,
+          value: false,
+          observer: 'hideChanged'
         }
       },
       $meta: [{
@@ -124,6 +135,13 @@
         maxCharsHint: "You can not enter more than {maxChars} characters."
       },
       _scopeCssViaAttr: true,
+      hideChanged: function (newValue, oldValue) {
+        var wrapper = Polymer.dom(this.root).querySelector('.wrapper');
+        this.toggleClass('hidden', newValue, wrapper);
+        if (!newValue) {
+          this._updateAutoGrow();
+        }
+      },
       hideLabelChanged: function(newValue, oldValue) {
         this.toggleClass('hidden', newValue, this.$.labelContainer);
       },
