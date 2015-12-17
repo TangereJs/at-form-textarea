@@ -63,6 +63,7 @@
           </div>
         </div>
         <div id="hintContainer" class="hint-container">
+          <p id="hint" class="hint"></p>
         </div>
       </div>
     </div>
@@ -96,7 +97,8 @@
         valid: {
           type: Boolean,
           value: true,
-          notify: true
+          notify: true,
+          readOnly: true
         },
         /**
          * if maxchars == 0 no check should be done,
@@ -131,6 +133,19 @@
           type: Boolean,
           value: false,
           observer: 'hideChanged'
+        },
+        /**
+         * When errorMessage is set to non-empty string, it invalidates the element and errorMessage is shown below the element <br/>
+         * When errorMessage is set to empty string, element is re-validated
+         *
+         * @property errorMessage
+         * @type String
+         * @default ''
+         */
+        errorMessage: {
+          type: String,
+          value: '',
+          observer: 'errorMessageChanged'
         }
       },
       $meta: [{
@@ -138,15 +153,23 @@
         type: "string",
         xtype: "textarea"
       }],
-      _hintMessages: {
+      _errorMessage: '',
+      _errorMessageTemplates: {
         maxCharsHint: "You can not enter more than {maxChars} characters.",
         maxLinesHint: "You can not enter more than {maxLines} lines of text."
       },
       _scopeCssViaAttr: true,
-      _hints: {
+      _errorMessageIds: {
         maxChars: "maxChars",
         maxLines: "maxLines"
       },
+      // at-form-textarea has three internal validation rules and one external
+      // 1) required [internal] - required ==  true && value === '' => valid = false
+      // 2) maxChars [internal] - maxChars > 0 && value.length > maxChars => valid = false
+      // 3) maxLines [internal] - maxLines > 0 && value.split('\n').length > maxLines => valid = false
+      // 4) errorMessage [external] - errorMessage !== '' => valid = false
+      // solution for validation is to populate _validationFunctions array with function pointers an call functions in a for loop
+      _validationFunctions: [],
       hideChanged: function(newValue, oldValue) {
         var wrapper = Polymer.dom(this.root).querySelector('.wrapper');
         this.toggleClass('hidden', newValue, wrapper);
@@ -164,18 +187,26 @@
         });
       },
       ready: function() {
+        // populate the validation functions array
+        this._validationFunctions = [
+          this._validateRequired.bind(this),
+          this._validateMaxChars.bind(this),
+          this._validateMaxLines.bind(this),
+          this._validateExternalErrorMessage.bind(this)
+        ];
+
         var valueProvider = this.$.valueProvider;
         var self = this;
         valueProvider.addEventListener('change', function(event) {
           event.stopPropagation();
           self.value = valueProvider.value;
-          self._validate();
+          self.validate();
         });
 
         valueProvider.addEventListener('blur', function(event) {
           event.stopPropagation();
           self.value = valueProvider.value;
-          self._validate();
+          self.validate();
         });
 
         valueProvider.addEventListener('input', function(event) {
@@ -204,15 +235,15 @@
           if (valueLength > maxChars) {
             // valueProvider.value = valueProvider.value.substring(0, maxChars);
             // Polymer.dom(valueProvider).innerHTML = valueProvider.value;
-            self._addHint(self._hints.maxChars, self._hintMessages.maxCharsHint.replace('{maxChars}', maxChars));
+            self._addHint(self._errorMessageIds.maxChars, self._errorMessageTemplates.maxCharsHint.replace('{maxChars}', maxChars));
             self.valid = false;
           } else {
             self.valid = true;
-            self._removeHint(self._hints.maxChars);
+            self._removeHint(self._errorMessageIds.maxChars);
           }
         } else {
-          self.valid = true;
-          self._removeHint(self._hints.maxChars);
+          self._setValid(true);
+          self._removeHint(self._errorMessageIds.maxChars);
         }
         self._updateValidUIState(self.valid);
       },
@@ -258,24 +289,27 @@
             var lineCount = lines.length;
 
             if (lineCount > maxLines) {
-              if (this._hintExists(this._hints.maxLines)) {
+              if (this._hintExists(this._errorMessageIds.maxLines)) {
                 return;
               }
-              this._addHint(this._hints.maxLines, this._hintMessages.maxLinesHint.replace("{maxLines}", this.maxLines));
+              this._addHint(this._errorMessageIds.maxLines, this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines));
               this.valid = false;
             } else {
-              this._removeHint(this._hints.maxLines);
+              this._removeHint(this._errorMessageIds.maxLines);
               this.valid = true;
             }
             this._updateValidUIState(this.valid);
           } else {
             this.valid = true;
-            this._removeHint(this._hints.maxLines);
+            this._removeHint(this._errorMessageIds.maxLines);
             this._updateValidUIState(this.valid);
           }
         } catch (e) {
           console.log(e);
         }
+      },
+      errorMessageChanged: function(newValue, oldValue) {
+        this.validate();
       },
       _createHint: function(hintId, hintContent) {
         var result = document.createElement('p');
@@ -296,7 +330,7 @@
           Polymer.dom(hintContainer).removeChild(hint);
         }
       },
-      _hintExists: function (hintId) {
+      _hintExists: function(hintId) {
         var hintContainer = this.$.hintContainer;
         var hint = Polymer.dom(hintContainer).querySelector('#' + hintId);
         return Boolean(hint);
@@ -312,12 +346,44 @@
         this.$.valueProvider.disabled = Boolean(newValue);
       },
       requiredChanged: function(newValue, oldValue) {
-        this._validate();
+        this.validate();
       },
-      _validate: function() {
+      validate: function() {
         var valueProvider = this.$.valueProvider;
-        this.valid = !(this.required && this._isNullOrEmpty(valueProvider.value));
-        this._updateValidUIState(this.valid);
+        var value = valueProvider.value;
+        var valid = true;
+
+        // clear internal error message
+        this._errorMessage = '';
+
+        var i;
+        var validationFunctions = this._validationFunctions;
+        var length = validationFunctions.length;
+        for (var i = 0; valid && i < length; i++) {
+          var validationFunction = validationFunctions[i];
+          valid = valid && validationFunction(value);
+        }
+
+        var hint = this.$.hint;
+
+        if (valid) {
+          // if valid clear html message
+          Polymer.dom(hint).innerHTML = '';
+        } else {
+          // update error message in html
+          if (this._isNullOrEmpty(this.errorMessage)) {
+            // if external message doesn't exist display internal error message
+            Polymer.dom(hint).innerHTML = this._errorMessage;
+          } else {
+            // display external errorMessage
+            Polymer.dom(hint).innerHTML = this.errorMessage;
+          }
+        }
+
+        // update css classes in html
+        this._updateValidUIState(valid);
+        // set the value to the public property so valid-changed is triggered
+        this._setValid(valid);
       },
       _updateValidUIState: function(isValid) {
         var valueProviderWrapper = this.$.valueProviderWrapper;
@@ -326,6 +392,52 @@
         this.toggleClass('error', !isValid, labelContainer);
         var hintContainer = this.$.hintContainer;
         this.toggleClass('error', !isValid, hintContainer);
+      },
+      _validateRequired: function(value) {
+        var required = this.required;
+        var valid = !required || !this._isNullOrEmpty(value);
+
+        this._errorMessage = "This field is required.";
+
+        return valid;
+      },
+      _validateMaxChars: function(value) {
+        var valid = true;
+
+        try {
+          var maxChars = parseInt(this.maxChars);
+          if (maxChars > 0) {
+            var charCount = value.length;
+            valid = maxChars > charCount;
+
+            this._errorMessage = this._errorMessageTemplates.maxCharsHint.replace("{maxChars}", this.maxChars);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        return valid;
+      },
+      _validateMaxLines: function(value) {
+        var valid = true;
+        try {
+          var maxLines = parseInt(this.maxLines);
+          if (maxLines > 0) {
+            var lines = value.split("\n");
+            var lineCount = lines.length;
+            valid = maxLines > lineCount;
+
+            this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        return valid;
+      },
+      _validateExternalErrorMessage: function(value) {
+        var valid = this._isNullOrEmpty(this.errorMessage);
+        return valid;
       },
       _isNullOrEmpty: function(obj) {
         return obj == null || obj === '';
