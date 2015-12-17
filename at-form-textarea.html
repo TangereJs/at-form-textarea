@@ -176,6 +176,8 @@
         if (!newValue) {
           this._updateAutoGrow();
         }
+
+        this.validate();
       },
       hideLabelChanged: function(newValue, oldValue) {
         this.toggleClass('hidden', newValue, this.$.labelContainer);
@@ -344,6 +346,7 @@
       },
       disabledChanged: function(newValue, oldValue) {
         this.$.valueProvider.disabled = Boolean(newValue);
+        this.validate();
       },
       requiredChanged: function(newValue, oldValue) {
         this.validate();
@@ -395,9 +398,11 @@
       },
       _validateRequired: function(value) {
         var required = this.required;
-        var valid = !required || !this._isNullOrEmpty(value);
+        var valid = this.hide || this.disabled || !required || !this._isNullOrEmpty(value);
 
-        this._errorMessage = "This field is required.";
+        if (!valid) {
+          this._errorMessage = "This field is required.";
+        }
 
         return valid;
       },
