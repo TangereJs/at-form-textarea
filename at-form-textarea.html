@@ -202,6 +202,7 @@
         valueProvider.addEventListener('change', function(event) {
           event.stopPropagation();
           self.value = valueProvider.value;
+          self._updateAutoGrow();
           self.validate();
         });
 
@@ -214,128 +215,54 @@
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
           self._updateAutoGrow();
-          self._updateMaxChars();
-          self._updateMaxLines();
+          self.validate();
         });
       },
       _updateAutoGrow: function() {
         var self = this;
-        if (self.maxLines === 0) {
-          self.autoGrowHelper();
-        }
-      },
-      _updateMaxChars: function() {
-        var
-          self = this,
-          valueProvider = self.$.valueProvider,
-          hint = self.$.hint,
-          maxChars = parseInt(self.maxChars);
-
-        if (maxChars > 0) {
-          // handle maxChars here
-          var valueLength = valueProvider.value.length;
-          if (valueLength > maxChars) {
-            // valueProvider.value = valueProvider.value.substring(0, maxChars);
-            // Polymer.dom(valueProvider).innerHTML = valueProvider.value;
-            self._addHint(self._errorMessageIds.maxChars, self._errorMessageTemplates.maxCharsHint.replace('{maxChars}', maxChars));
-            self.valid = false;
-          } else {
-            self.valid = true;
-            self._removeHint(self._errorMessageIds.maxChars);
-          }
-        } else {
-          self._setValid(true);
-          self._removeHint(self._errorMessageIds.maxChars);
-        }
-        self._updateValidUIState(self.valid);
-      },
-      valueChanged: function(newValue, oldValue) {
-        var valueProvider = this.$.valueProvider;
-        valueProvider.value = newValue;
-        this._updateAutoGrow();
-        this._updateMaxChars();
-        this._updateMaxLines();
-      },
-      maxCharsChanged: function(newValue, oldValue) {
-        this._updateMaxChars();
-      },
-      maxLinesChanged: function(newValue, oldValue) {
-        var valueProvider = this.$.valueProvider;
-        if (Object.prototype.toString.call(newValue) === "[object String]") {
-          try {
-            this.maxLines = parseInt(newValue);
-            return;
-          } catch (e) {
-            console.log(e);
-          }
-          return;
-        }
-        if (newValue === 0) {
-          if (valueProvider.scrollHeight > 14) {
-            // handle autogrow here
-            this.autoGrowHelper();
-          } else {}
-        }
-        // else {
-        //   valueProvider.style.height = 'auto';
-        //   valueProvider.rows = newValue;
-        // }
-        this._updateMaxLines();
-      },
-      _updateMaxLines: function() {
-        var valueProvider = this.$.valueProvider;
         try {
-          var maxLines = parseInt(this.maxLines);
-          if (maxLines > 0) {
-            var lines = valueProvider.value.split("\n");
-            var lineCount = lines.length;
-
-            if (lineCount > maxLines) {
-              if (this._hintExists(this._errorMessageIds.maxLines)) {
-                return;
-              }
-              this._addHint(this._errorMessageIds.maxLines, this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines));
-              this.valid = false;
-            } else {
-              this._removeHint(this._errorMessageIds.maxLines);
-              this.valid = true;
-            }
-            this._updateValidUIState(this.valid);
-          } else {
-            this.valid = true;
-            this._removeHint(this._errorMessageIds.maxLines);
-            this._updateValidUIState(this.valid);
+          var maxLines = parseInt(self.maxLines);
+          if (maxLines === 0) {
+            self.autoGrowHelper();
           }
         } catch (e) {
           console.log(e);
         }
       },
-      errorMessageChanged: function(newValue, oldValue) {
+      valueChanged: function(newValue, oldValue) {
+        var valueProvider = this.$.valueProvider;
+        valueProvider.value = newValue;
+        this._updateAutoGrow();
         this.validate();
       },
-      _createHint: function(hintId, hintContent) {
-        var result = document.createElement('p');
-        Polymer.dom(result).setAttribute('id', hintId);
-        Polymer.dom(result).innerHTML = hintContent;
-        Polymer.dom(result).classList.add('hint');
-        return result;
+      maxCharsChanged: function(newValue, oldValue) {
+        this.validate();
       },
-      _addHint: function(hintId, hintContent) {
-        var hint = this._createHint(hintId, hintContent);
-        var hintContainer = this.$.hintContainer;
-        Polymer.dom(hintContainer).appendChild(hint);
-      },
-      _removeHint: function(hintId) {
-        var hintContainer = this.$.hintContainer;
-        var hint = Polymer.dom(hintContainer).querySelector('#' + hintId);
-        if (hint) {
-          Polymer.dom(hintContainer).removeChild(hint);
+      maxLinesChanged: function(newValue, oldValue) {
+        var valueProvider = this.$.valueProvider;
+
+        try {
+          newValue = parseInt(newValue);
+        } catch (e) {
+          console.log(e);
+          return;
         }
+
+        if (newValue === 0) {
+          if (valueProvider.scrollHeight > 14) {
+            // handle autogrow here
+            this.autoGrowHelper();
+          }
+        } else if (newValue > 0) {
+          // *ij* read #743 on adenin.axosoft.com
+          valueProvider.style.height = 'auto';
+          valueProvider.rows = newValue;
+        }
+
+        this.validate();
       },
-      _hintExists: function(hintId) {
-        var hintContainer = this.$.hintContainer;
-        var hint = Polymer.dom(hintContainer).querySelector('#' + hintId);
-        return Boolean(hint);
+      errorMessageChanged: function(newValue, oldValue) {
+        this.validate();
       },
       autoGrowHelper: function() {
         var valueProvider = this.$.valueProvider;
@@ -359,12 +286,14 @@
         // clear internal error message
         this._errorMessage = '';
 
-        var i;
-        var validationFunctions = this._validationFunctions;
-        var length = validationFunctions.length;
-        for (var i = 0; valid && i < length; i++) {
-          var validationFunction = validationFunctions[i];
-          valid = valid && validationFunction(value);
+        if (!(Boolean(this.hide) || Boolean(this.disabled))) {
+          var i;
+          var validationFunctions = this._validationFunctions;
+          var length = validationFunctions.length;
+          for (var i = 0; valid && i < length; i++) {
+            var validationFunction = validationFunctions[i];
+            valid = valid && validationFunction(value);
+          }
         }
 
         var hint = this.$.hint;
@@ -398,7 +327,7 @@
       },
       _validateRequired: function(value) {
         var required = this.required;
-        var valid = this.hide || this.disabled || !required || !this._isNullOrEmpty(value);
+        var valid = !required || !this._isNullOrEmpty(value);
 
         if (!valid) {
           this._errorMessage = "This field is required.";
@@ -413,7 +342,7 @@
           var maxChars = parseInt(this.maxChars);
           if (maxChars > 0) {
             var charCount = value.length;
-            valid = maxChars > charCount;
+            valid = (maxChars + 1) > charCount;
 
             this._errorMessage = this._errorMessageTemplates.maxCharsHint.replace("{maxChars}", this.maxChars);
           }
@@ -430,7 +359,7 @@
           if (maxLines > 0) {
             var lines = value.split("\n");
             var lineCount = lines.length;
-            valid = maxLines > lineCount;
+            valid = (maxLines + 1) > lineCount;
 
             this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines);
           }
