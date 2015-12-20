@@ -316,6 +316,8 @@
         this._updateValidUIState(valid);
         // set the value to the public property so valid-changed is triggered
         this._setValid(valid);
+				
+        return valid;
       },
       _updateValidUIState: function(isValid) {
         var valueProviderWrapper = this.$.valueProviderWrapper;
