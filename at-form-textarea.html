@@ -246,11 +246,6 @@
           this.validate();
         }
       },
-      errorMessageChanged: function(newValue, oldValue) {
-        if (this._isReady) {
-          this.validate();
-        }
-      },
       autoGrowHelper: function() {
         var valueProvider = this.$.valueProvider;
         if (valueProvider.scrollHeight > 0) {
