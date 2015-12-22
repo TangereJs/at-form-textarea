@@ -1,6 +1,7 @@
 <link rel="import" href="../layout/layout.html">
 <link rel="import" href="../at-core-theme/at-core-theme.html">
 <link rel="import" href="../at-core-resize-sensor/at-core-resize-sensor.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-validation.html">
 
 <dom-module id="at-form-textarea">
   <style>
@@ -63,7 +64,7 @@
           </div>
         </div>
         <div id="hintContainer" class="hint-container">
-          <p id="hint" class="hint"></p>
+          <p id="errorHtml" class="hint"></p>
         </div>
       </div>
     </div>
@@ -72,6 +73,7 @@
     'use strict';
     Polymer({
       is: 'at-form-textarea',
+      behaviors: [AtFormBehaviors.AtFormBehaviorsValidation],
       properties: {
         label: {
           type: String,
@@ -93,12 +95,6 @@
           type: Boolean,
           value: false,
           observer: 'requiredChanged'
-        },
-        valid: {
-          type: Boolean,
-          value: true,
-          notify: true,
-          readOnly: true
         },
         /**
          * if maxchars == 0 no check should be done,
@@ -134,19 +130,6 @@
           value: false,
           observer: 'hideChanged'
         },
-        /**
-         * When errorMessage is set to non-empty string, it invalidates the element and errorMessage is shown below the element <br/>
-         * When errorMessage is set to empty string, element is re-validated
-         *
-         * @property errorMessage
-         * @type String
-         * @default ''
-         */
-        errorMessage: {
-          type: String,
-          value: '',
-          observer: 'errorMessageChanged'
-        }
       },
       $meta: [{
         title: "Textarea",
@@ -163,13 +146,7 @@
         maxChars: "maxChars",
         maxLines: "maxLines"
       },
-      // at-form-textarea has three internal validation rules and one external
-      // 1) required [internal] - required ==  true && value === '' => valid = false
-      // 2) maxChars [internal] - maxChars > 0 && value.length > maxChars => valid = false
-      // 3) maxLines [internal] - maxLines > 0 && value.split('\n').length > maxLines => valid = false
-      // 4) errorMessage [external] - errorMessage !== '' => valid = false
-      // solution for validation is to populate _validationFunctions array with function pointers an call functions in a for loop
-      _validationFunctions: [],
+      _isReady: false,
       hideChanged: function(newValue, oldValue) {
         var wrapper = Polymer.dom(this.root).querySelector('.wrapper');
         this.toggleClass('hidden', newValue, wrapper);
@@ -177,7 +154,9 @@
           this._updateAutoGrow();
         }
 
-        this.validate();
+        if (this._isReady) {
+          this.validate();
+        }
       },
       hideLabelChanged: function(newValue, oldValue) {
         this.toggleClass('hidden', newValue, this.$.labelContainer);
@@ -189,13 +168,10 @@
         });
       },
       ready: function() {
-        // populate the validation functions array
-        this._validationFunctions = [
-          this._validateRequired.bind(this),
-          this._validateMaxChars.bind(this),
-          this._validateMaxLines.bind(this),
-          this._validateExternalErrorMessage.bind(this)
-        ];
+        // *ij* part of validation behavior API
+        // add custom validation functions to _validationFunctions array in validation behavior
+        this._validationFunctions.push(this._validateMaxChars.bind(this));
+        this._validationFunctions.push(this._validateMaxLines.bind(this));
 
         var valueProvider = this.$.valueProvider;
         var self = this;
@@ -214,9 +190,12 @@
 
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
+          self.value = valueProvider.value;
           self._updateAutoGrow();
           self.validate();
         });
+
+        this._isReady = true;
       },
       _updateAutoGrow: function() {
         var self = this;
@@ -233,10 +212,14 @@
         var valueProvider = this.$.valueProvider;
         valueProvider.value = newValue;
         this._updateAutoGrow();
-        this.validate();
+        if (this._isReady) {
+          this.validate();
+        }
       },
       maxCharsChanged: function(newValue, oldValue) {
-        this.validate();
+        if (this._isReady) {
+          this.validate();
+        }
       },
       maxLinesChanged: function(newValue, oldValue) {
         var valueProvider = this.$.valueProvider;
@@ -254,15 +237,19 @@
             this.autoGrowHelper();
           }
         } else if (newValue > 0) {
-          // *ij* read #743 on adenin.axosoft.com
           valueProvider.style.height = 'auto';
+          // *ij* read #743 on adenin.axosoft.com
           valueProvider.rows = newValue;
         }
 
-        this.validate();
+        if (this._isReady) {
+          this.validate();
+        }
       },
       errorMessageChanged: function(newValue, oldValue) {
-        this.validate();
+        if (this._isReady) {
+          this.validate();
+        }
       },
       autoGrowHelper: function() {
         var valueProvider = this.$.valueProvider;
@@ -273,53 +260,19 @@
       },
       disabledChanged: function(newValue, oldValue) {
         this.$.valueProvider.disabled = Boolean(newValue);
-        this.validate();
+        if (this._isReady) {
+          this.validate();
+        }
       },
       requiredChanged: function(newValue, oldValue) {
-        this.validate();
-      },
-      validate: function() {
-        var valueProvider = this.$.valueProvider;
-        var value = valueProvider.value;
-        var valid = true;
-
-        // clear internal error message
-        this._errorMessage = '';
-
-        if (!(Boolean(this.hide) || Boolean(this.disabled))) {
-          var i;
-          var validationFunctions = this._validationFunctions;
-          var length = validationFunctions.length;
-          for (var i = 0; valid && i < length; i++) {
-            var validationFunction = validationFunctions[i];
-            valid = valid && validationFunction(value);
-          }
+        if (this._isReady) {
+          this.validate();
         }
-
-        var hint = this.$.hint;
-
-        if (valid) {
-          // if valid clear html message
-          Polymer.dom(hint).innerHTML = '';
-        } else {
-          // update error message in html
-          if (this._isNullOrEmpty(this.errorMessage)) {
-            // if external message doesn't exist display internal error message
-            Polymer.dom(hint).innerHTML = this._errorMessage;
-          } else {
-            // display external errorMessage
-            Polymer.dom(hint).innerHTML = this.errorMessage;
-          }
-        }
-
-        // update css classes in html
-        this._updateValidUIState(valid);
-        // set the value to the public property so valid-changed is triggered
-        this._setValid(valid);
-				
-        return valid;
       },
-      _updateValidUIState: function(isValid) {
+      // *ij* part of validation behavior API
+      // include _updateUIValidState function and implement it to update
+      // the UI to reflect the new valid state
+      _updateUIValidState: function(isValid) {
         var valueProviderWrapper = this.$.valueProviderWrapper;
         this.toggleClass('error', !isValid, valueProviderWrapper);
         var labelContainer = this.$.labelContainer;
@@ -327,16 +280,8 @@
         var hintContainer = this.$.hintContainer;
         this.toggleClass('error', !isValid, hintContainer);
       },
-      _validateRequired: function(value) {
-        var required = this.required;
-        var valid = !required || !this._isNullOrEmpty(value);
-
-        if (!valid) {
-          this._errorMessage = "This field is required.";
-        }
-
-        return valid;
-      },
+      // *ij* part of validation behavior API
+      // this is a custom validation function which checks the max chars constraint
       _validateMaxChars: function(value) {
         var valid = true;
 
@@ -354,6 +299,8 @@
 
         return valid;
       },
+      // *ij* part of validation behavior API
+      // this is a custom validation function which checks the max lines constraint
       _validateMaxLines: function(value) {
         var valid = true;
         try {
@@ -370,13 +317,6 @@
         }
 
         return valid;
-      },
-      _validateExternalErrorMessage: function(value) {
-        var valid = this._isNullOrEmpty(this.errorMessage);
-        return valid;
-      },
-      _isNullOrEmpty: function(obj) {
-        return obj == null || obj === '';
       }
     });
   </script>
