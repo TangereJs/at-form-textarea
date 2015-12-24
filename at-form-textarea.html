@@ -192,9 +192,7 @@
 
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
-          self.value = valueProvider.value;
           self._updateAutoGrow();
-          self.validate();
         });
 
         this._isReady = true;
