@@ -26,7 +26,6 @@
     }
 
     --error-color: #e41e2b;
-
     .label-container.error > label {
       color: var(--error-color);
     }
@@ -84,7 +83,7 @@
         value: {
           type: String,
           value: '',
-          notify: true,
+          // notify: true,
           observer: 'valueChanged',
           xtype: 'textarea'
         },
@@ -179,16 +178,18 @@
         var self = this;
         valueProvider.addEventListener('change', function(event) {
           event.stopPropagation();
-          self.value = valueProvider.value;
           self._updateAutoGrow();
+          self.value = valueProvider.value;
           self.validate();
+          self.fire('value-changed', { value: self.value });
         });
 
-        valueProvider.addEventListener('blur', function(event) {
-          event.stopPropagation();
-          self.value = valueProvider.value;
-          self.validate();
-        });
+        // valueProvider.addEventListener('blur', function(event) {
+        //   event.stopPropagation();
+        //   self.value = valueProvider.value;
+        //   self.validate();
+        //   self.fire('value-changed', { value: self.value });
+        // });
 
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
