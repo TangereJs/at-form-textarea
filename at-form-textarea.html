@@ -184,12 +184,12 @@
           self.fire('value-changed', { value: self.value });
         });
 
-        // valueProvider.addEventListener('blur', function(event) {
-        //   event.stopPropagation();
-        //   self.value = valueProvider.value;
-        //   self.validate();
+        valueProvider.addEventListener('blur', function(event) {
+          event.stopPropagation();
+          //   self.value = valueProvider.value;
+          self.validate();
         //   self.fire('value-changed', { value: self.value });
-        // });
+        });
 
         valueProvider.addEventListener('input', function(event) {
           event.stopPropagation();
