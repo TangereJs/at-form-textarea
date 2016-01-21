@@ -198,6 +198,9 @@
 
         this._isReady = true;
       },
+      focus: function () {
+        this.$.valueProvider.focus();
+      },
       _updateAutoGrow: function() {
         var self = this;
         try {
