@@ -1,0 +1,10 @@
+{
+  "name": "at-form-textarea",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#0.8-preview",
+    "at-theme": "TangereJs/at-theme#0.8-preview",
+    "at-core-resize-sensor": "TangereJs/at-core-resize-sensor#0.8-preview",
+    "at-form-behaviors": "TangereJs/at-form-behaviors#0.8-preview"
+  }
+}

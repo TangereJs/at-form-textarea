@@ -1,0 +1,321 @@
+<link rel="import" href="../layout/layout.html">
+<link rel="import" href="../at-theme/at-theme.html">
+<link rel="import" href="../at-core-resize-sensor/at-core-resize-sensor.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-validation.html">
+
+<dom-module id="at-form-textarea">
+  <style>
+    .wrapper {
+      position: relative;
+    }
+
+    .clear-float {
+      clear: both;
+    }
+
+    .content-wrapper {}
+
+    .content-wrapper > .label-container {
+      margin: 0 8px;
+    }
+
+    .content-wrapper > .value-container {}
+
+    .content-wrapper > .hint-container {
+      margin: 0 8px;
+    }
+
+    --error-color: #e41e2b;
+    .label-container.error > label {
+      color: var(--error-color);
+    }
+
+    .hint-container.error > p {
+      color: var(--error-color);
+    }
+
+    #label {
+      font-weight: bold;
+    }
+
+    #valueProvider {
+      min-height: unset;
+      max-height: none;
+      height: auto;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+  <template>
+    <div class="wrapper">
+      <at-core-resize-sensor id="resizeSensor"></at-core-resize-sensor>
+      <div class="clear-float"></div>
+      <div class="vertical-layout content-wrapper">
+        <div id="labelContainer" class="label-container">
+          <label id="label">{{label}}</label>
+        </div>
+        <div class="value-container">
+          <div class="ui form">
+            <div id="valueProviderWrapper" class="field">
+              <textarea id="valueProvider" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="hintContainer" class="hint-container">
+          <p id="errorHtml" class="hint"></p>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script>
+    'use strict';
+    Polymer({
+      is: 'at-form-textarea',
+      behaviors: [AtFormBehaviors.AtFormBehaviorsValidation],
+      properties: {
+        label: {
+          type: String,
+          value: ''
+        },
+        value: {
+          type: String,
+          value: '',
+          // notify: true,
+          observer: 'valueChanged',
+          xtype: 'textarea'
+        },
+        disabled: {
+          type: Boolean,
+          value: false,
+          observer: 'disabledChanged'
+        },
+        required: {
+          type: Boolean,
+          value: false,
+          observer: 'requiredChanged'
+        },
+        /**
+         * if maxchars == 0 no check should be done,
+         * if != 0 total chars can't be longer then maxchars
+         */
+        maxChars: {
+          type: Number,
+          value: 0,
+          observer: 'maxCharsChanged'
+        },
+        /**
+         * if maxlines == 0 the textarea should autogrow
+         * if maxlines != 0 the textarea should be rendered with the fixed number of lines
+         */
+        maxLines: {
+          type: Number,
+          value: 0,
+          observer: 'maxLinesChanged'
+        },
+        hideLabel: {
+          type: Boolean,
+          value: false,
+          observer: 'hideLabelChanged'
+        },
+        /**
+         * Hides the element. When hidden nothing is displayed for the element
+         * @property hide
+         * @type Boolean
+         * @default false
+         */
+        hide: {
+          type: Boolean,
+          value: false,
+          observer: 'hideChanged'
+        },
+      },
+      $meta: [{
+        title: "Textarea",
+        type: "string",
+        xtype: "textarea"
+      }],
+      _errorMessage: '',
+      _errorMessageTemplates: {
+        maxCharsHint: "You can not enter more than {maxChars} characters.",
+        maxLinesHint: "You can not enter more than {maxLines} lines of text."
+      },
+      _scopeCssViaAttr: true,
+      _errorMessageIds: {
+        maxChars: "maxChars",
+        maxLines: "maxLines"
+      },
+      _isReady: false,
+      hideChanged: function(newValue, oldValue) {
+        var wrapper = Polymer.dom(this.root).querySelector('.wrapper');
+        this.toggleClass('hidden', newValue, wrapper);
+        if (!newValue) {
+          this._updateAutoGrow();
+        }
+
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      hideLabelChanged: function(newValue, oldValue) {
+        this.toggleClass('hidden', newValue, this.$.labelContainer);
+      },
+      attached: function() {
+        var self = this;
+        this.$.resizeSensor.addEventListener('resize-sensed', function() {
+          self._updateAutoGrow();
+        });
+      },
+      ready: function() {
+        // *ij* part of validation behavior API
+        // add custom validation functions to _validationFunctions array in validation behavior
+        this._validationFunctions.push(this._validateMaxChars.bind(this));
+        this._validationFunctions.push(this._validateMaxLines.bind(this));
+
+        var valueProvider = this.$.valueProvider;
+        var self = this;
+        valueProvider.addEventListener('change', function(event) {
+          event.stopPropagation();
+          self._updateAutoGrow();
+          self.value = valueProvider.value;
+          self.validate();
+          self.fire('value-changed', { value: self.value });
+        });
+
+        valueProvider.addEventListener('blur', function(event) {
+          event.stopPropagation();
+          //   self.value = valueProvider.value;
+          self.validate();
+        //   self.fire('value-changed', { value: self.value });
+        });
+
+        valueProvider.addEventListener('input', function(event) {
+          event.stopPropagation();
+          self._updateAutoGrow();
+        });
+
+        this._isReady = true;
+      },
+      focus: function () {
+        this.$.valueProvider.focus();
+      },
+      _updateAutoGrow: function() {
+        var self = this;
+        try {
+          var maxLines = parseInt(self.maxLines);
+          if (maxLines === 0) {
+            self.autoGrowHelper();
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      valueChanged: function(newValue, oldValue) {
+        var valueProvider = this.$.valueProvider;
+        valueProvider.value = newValue;
+        this._updateAutoGrow();
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      maxCharsChanged: function(newValue, oldValue) {
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      maxLinesChanged: function(newValue, oldValue) {
+        var valueProvider = this.$.valueProvider;
+
+        try {
+          newValue = parseInt(newValue);
+        } catch (e) {
+          console.log(e);
+          return;
+        }
+
+        if (newValue === 0) {
+          if (valueProvider.scrollHeight > 14) {
+            // handle autogrow here
+            this.autoGrowHelper();
+          }
+        } else if (newValue > 0) {
+          valueProvider.style.height = 'auto';
+          // *ij* read #743 on adenin.axosoft.com
+          valueProvider.rows = newValue;
+        }
+
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      autoGrowHelper: function() {
+        var valueProvider = this.$.valueProvider;
+        if (valueProvider.scrollHeight > 0) {
+          valueProvider.style.height = 'auto';
+          valueProvider.style.height = (valueProvider.scrollHeight + 3) + 'px';
+        }
+      },
+      disabledChanged: function(newValue, oldValue) {
+        this.$.valueProvider.disabled = Boolean(newValue);
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      requiredChanged: function(newValue, oldValue) {
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      // *ij* part of validation behavior API
+      // include _updateUIValidState function and implement it to update
+      // the UI to reflect the new valid state
+      _updateUIValidState: function(isValid) {
+        var valueProviderWrapper = this.$.valueProviderWrapper;
+        this.toggleClass('error', !isValid, valueProviderWrapper);
+        var labelContainer = this.$.labelContainer;
+        this.toggleClass('error', !isValid, labelContainer);
+        var hintContainer = this.$.hintContainer;
+        this.toggleClass('error', !isValid, hintContainer);
+      },
+      // *ij* part of validation behavior API
+      // this is a custom validation function which checks the max chars constraint
+      _validateMaxChars: function(value) {
+        var valid = true;
+
+        try {
+          var maxChars = parseInt(this.maxChars);
+          if (maxChars > 0) {
+            var charCount = value.length;
+            valid = (maxChars + 1) > charCount;
+
+            this._errorMessage = this._errorMessageTemplates.maxCharsHint.replace("{maxChars}", this.maxChars);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        return valid;
+      },
+      // *ij* part of validation behavior API
+      // this is a custom validation function which checks the max lines constraint
+      _validateMaxLines: function(value) {
+        var valid = true;
+        try {
+          var maxLines = parseInt(this.maxLines);
+          if (maxLines > 0) {
+            var lines = value.split("\n");
+            var lineCount = lines.length;
+            valid = (maxLines + 1) > lineCount;
+
+            this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        return valid;
+      }
+    });
+  </script>
+</dom-module>
