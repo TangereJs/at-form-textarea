@@ -16,7 +16,6 @@
 
       #valueProvider {
         @apply(--at-form-input-common);
-        @apply(--at-form-content);
       }
 
       #valueProvider:focus {
@@ -24,43 +23,43 @@
       }
 
       #valueProvider::-webkit-input-placeholder {
-        opacity: 0.8;
+        @apply(--at-form-input-placeholder);
       }
 
       #valueProvider:-moz-placeholder {
         /* Mozilla Firefox 4 to 18 */
-        opacity: 0.8;
+        @apply(--at-form-input-placeholder);
       }
 
       #valueProvider::-moz-placeholder {
         /* Mozilla Firefox 19+ */
-        opacity: 0.8;
+        @apply(--at-form-input-placeholder);
       }
 
       #valueProvider:-ms-input-placeholder {
         /* Internet Explorer 10-11 */
-        opacity: 0.8;
+        @apply(--at-form-input-placeholder);
       }
 
       #contentContainer.error #valueProvider::-webkit-input-placeholder {
-        color: var(--at-error-color);
+        @apply(--at-form-input-placeholder-error);
       }
 
       #contentContainer.error #valueProvider:-moz-placeholder {
         /* Mozilla Firefox 4 to 18 */
-        color: var(--at-error-color);
+        @apply(--at-form-input-placeholder-error);
         opacity: 1;
       }
 
       #contentContainer.error #valueProvider::-moz-placeholder {
         /* Mozilla Firefox 19+ */
-        color: var(--at-error-color);
+        @apply(--at-form-input-placeholder-error);
         opacity: 1;
       }
 
       #contentContainer.error #valueProvider:-ms-input-placeholder {
         /* Internet Explorer 10-11 */
-        color: var(--at-error-color);
+        @apply(--at-form-input-placeholder-error);
       }
 
       .clear-float {
@@ -93,6 +92,10 @@
 
       #contentContainer.error #valueProvider {
         @apply(--at-form-content-error);
+      }
+
+      #errorHtml {
+        @apply(--at-form-error-font);
       }
     </style>
     <div id="atContainer" class="at-container">
