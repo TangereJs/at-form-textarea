@@ -27,15 +27,18 @@
         opacity: 0.8;
       }
 
-      #valueProvider:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+      #valueProvider:-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
         opacity: 0.8;
       }
 
-      #valueProvider::-moz-placeholder { /* Mozilla Firefox 19+ */
+      #valueProvider::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
         opacity: 0.8;
       }
 
-      #valueProvider:-ms-input-placeholder { /* Internet Explorer 10-11 */
+      #valueProvider:-ms-input-placeholder {
+        /* Internet Explorer 10-11 */
         opacity: 0.8;
       }
 
@@ -43,17 +46,20 @@
         color: var(--at-error-color);
       }
 
-      #contentContainer.error #valueProvider:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+      #contentContainer.error #valueProvider:-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
         color: var(--at-error-color);
-        opacity:  1;
+        opacity: 1;
       }
 
-      #contentContainer.error #valueProvider::-moz-placeholder { /* Mozilla Firefox 19+ */
+      #contentContainer.error #valueProvider::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
         color: var(--at-error-color);
-        opacity:  1;
+        opacity: 1;
       }
 
-      #contentContainer.error #valueProvider:-ms-input-placeholder { /* Internet Explorer 10-11 */
+      #contentContainer.error #valueProvider:-ms-input-placeholder {
+        /* Internet Explorer 10-11 */
         color: var(--at-error-color);
       }
 
@@ -93,17 +99,16 @@
       <at-core-resize-sensor id="resizeSensor"></at-core-resize-sensor>
       <div class="clear-float"></div>
       <div>
-
-      <div id="labelContainer" class="at-label-container">
-        <label id="label" class="at-label">{{label}}</label>
+        <div id="labelContainer" class="at-label-container">
+          <label id="label" class="at-label">{{label}}</label>
+        </div>
+        <div id="contentContainer" class="at-content-container">
+          <textarea id="valueProvider" rows="3" class="at-content"></textarea>
+        </div>
+        <div id="hintContainer" class="at-hint-container">
+          <p id="errorHtml" class="hint"></p>
+        </div>
       </div>
-      <div id="contentContainer" class="at-content-container">
-        <textarea id="valueProvider" rows="3" class="at-content"></textarea>
-      </div>
-      <div id="hintContainer" class="at-hint-container">
-        <p id="errorHtml" class="hint"></p>
-      </div>
-    </div>
     </div>
   </template>
   <script>
