@@ -109,7 +109,7 @@
           <textarea id="valueProvider" rows="3" class="at-content"></textarea>
         </div>
         <div id="hintContainer" class="at-hint-container">
-          <p id="errorHtml" class="hint"></p>
+          <div id="errorHtml" class="hint"></div>
         </div>
       </div>
     </div>
@@ -186,7 +186,7 @@
         maxCharsHint: "You can not enter more than {maxChars} characters.",
         maxLinesHint: "You can not enter more than {maxLines} lines of text."
       },
-      _scopeCssViaAttr: true,
+      
       _errorMessageIds: {
         maxChars: "maxChars",
         maxLines: "maxLines"
@@ -304,10 +304,12 @@
         }
       },
       disabledChanged: function(newValue, oldValue) {
+        
+        var atContainer = this.$.atContainer;                    
+        this.toggleClass('disabled', newValue, atContainer);
+        this.$.valueProvider.disabled = Boolean(newValue);
+        
         if (this._isReady) {
-          var atContainer = this.$.atContainer;
-          this.toggleClass('disabled', newValue, atContainer);
-          this.$.valueProvider.disabled = Boolean(newValue);
           this.validate();
         }
       },

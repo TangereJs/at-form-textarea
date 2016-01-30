@@ -25,76 +25,75 @@
 </head>
 
 <body>
-  <div class="vertical layout">
-    <div class="">
-      <h3>This is at-form-textarea demo</h3>
-    </div>
-    <div class="horizontal layout">
-      <div class="content-container vertical layout flex-9">
-        <at-form-textarea id="demoTa" label="This is demo label!"></at-form-textarea>
-      </div>
-      <div class="controls-container vertical layout flex-3">
-        <div class="control-container">
-          <p>Element is <b id="validEcho">valid</b></p>
-        </div>
-        <div class="control-container">
-          <input type="checkbox" id="disableToggle" />
-          <label for="disableToggle">Disable</label>
-        </div>
-        <div class="control-container">
-          <input type="checkbox" id="required" />
-          <label for="required">Required</label>
-        </div>
-        <div class="control-container">
-          <label for="maxChars">Maximum characters (0=infinite)</label>
-          <input type="number" id="maxChars" />
-        </div>
-        <div class="control-container">
-          <label for="maxLines">Maximum lines (0=infinite)</label>
-          <input type="number" id="maxLines" />
-        </div>
-        <div class="control-container">
-          <label>Value:</label>
-          <p id="valueEcho"></p>
-        </div>
-      </div>
+  <div>
+    <h3>This is demo for at-form-textarea</h3>
+  </div>
+  <div>
+    <p>The at-form-textarea has a label and input field</p>
+    <p>Use <b>label</b> attribute to set the desired text to be displayed as label</p>
+    <p>Use <b>type</b> property to set the input type</p>
+  </div>
+  <div>
+    <h4>Example 1: value echo</h4>
+    <p>
+      <at-form-textarea id="first" name="pera" type="text" label="Value echo" placeholder="This is placeholder..."></at-form-textarea>
+    </p>
+    <div>
+      <b>Value echo: </b><span id="valueEcho"></span>
     </div>
   </div>
+  <div>
+    <h4>Example 2: error</h4>
+    <p>Add <b>required</b> attribute to make at-form-textarea required</p>
+    <p>
+      <at-form-textarea name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
+    </p>
+  </div>
+  <div>
+    <h4>Example 3: disabled</h4>
+    <p>Add <b>disabled</b> attribute to make at-form-textarea disabled</p>
+    <p>
+      <at-form-textarea name="pera" type="text" label="This is disabled input" placeholder="this is placeholder..." disabled></at-form-textarea>
+    </p>
+  </div>
+  <div>
+    <h4>Example 4: required</h4>    
+    <p>
+      <at-form-textarea id="programmatic1" name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
+    </p>
+  </div>
+  <div>
+    <h4>Example 5: required and value set programmatically</h4>
+    <p>Value being set is not whitespace <code>"this is not whitespace"</code> </p>
+    <p>
+      <at-form-textarea id="programmatic2" name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
+    </p>
+  </div>
+  <div>
+    <h4>Example 6: hidden label demo</h4>
+    <at-form-textarea label="This is hidden label" placeholder="this is hidden label placeholder..." required hide-label="true"></at-form-textarea>
+  </div>
+  <div>
+    <h4>Example 6: maxChars demo</h4>
+    <p>maxChars is set to 15</p>
+    <at-form-textarea label="maxChars demo" placeholder="You can enter max 15 chars here ..." max-chars="15"></at-form-textarea>
+  </div>
   <script>
-    document.addEventListener('WebComponentsReady', function(event){
-      var demoTa = document.getElementById('demoTa');
+    document.addEventListener('WebComponentsReady', function (e) {
+
+      var firstAFI = document.getElementById('first');
       var valueEcho = document.getElementById('valueEcho');
-      demoTa.addEventListener('value-changed', function(event){
-        valueEcho.innerHTML = demoTa.value;
+      valueEcho.innerHTML = firstAFI.value;
+      firstAFI.addEventListener('value-changed', function (e) {
+        valueEcho.innerHTML = e.detail.value;
       });
 
-      var disableToggle = document.getElementById('disableToggle');
-      disableToggle.addEventListener('change', function(event){
-        demoTa.disabled = disableToggle.checked;
-      });
+      var programmatic = document.getElementById('programmatic1');      
+      programmatic.value = "";
+      programmatic.validate();
 
-      var requiredToggle = document.getElementById('required');
-      requiredToggle.addEventListener('change', function(event){
-        demoTa.required = requiredToggle.checked;
-      });
-
-      var validEcho = document.getElementById('validEcho');
-      demoTa.addEventListener('valid-changed', function(event){
-        var validText = event.detail.value ? "valid" : "invalid";
-        validEcho.innerHTML = validText;
-      });
-
-      var maxLines = document.getElementById('maxLines');
-      maxLines.value = demoTa.maxLines;
-      maxLines.addEventListener('change', function(event){
-        demoTa.maxLines = parseInt(maxLines.value);
-      });
-
-      var maxChars = document.getElementById('maxChars');
-      maxChars.value = demoTa.maxChars;
-      maxChars.addEventListener('change', function(event){
-        demoTa.maxChars = parseInt(maxChars.value);
-      });
+      var programmatic2 = document.getElementById('programmatic2');
+      programmatic2.value = "This is not whitespace";
     });
   </script>
 </body>
