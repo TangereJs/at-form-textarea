@@ -5,6 +5,7 @@
 
 <dom-module id="at-form-textarea">
   <template>
+    <style include="at-form-common"></style>
     <style>
       :host * {
         box-sizing: border-box;
@@ -13,104 +14,16 @@
       :host {
         @apply(--at-form-host);
       }
-
-      #valueProvider {
-        @apply(--at-form-input-common);
-      }
-
-      #valueProvider:focus {
-        @apply(--at-form-input-focus);
-      }
-
-      #valueProvider::-webkit-input-placeholder {
-        @apply(--at-form-input-placeholder);
-      }
-
-      #valueProvider:-moz-placeholder {
-        /* Mozilla Firefox 4 to 18 */
-        @apply(--at-form-input-placeholder);
-      }
-
-      #valueProvider::-moz-placeholder {
-        /* Mozilla Firefox 19+ */
-        @apply(--at-form-input-placeholder);
-      }
-
-      #valueProvider:-ms-input-placeholder {
-        /* Internet Explorer 10-11 */
-        @apply(--at-form-input-placeholder);
-      }
-
-      #contentContainer.error #valueProvider::-webkit-input-placeholder {
-        @apply(--at-form-input-placeholder-error);
-      }
-
-      #contentContainer.error #valueProvider:-moz-placeholder {
-        /* Mozilla Firefox 4 to 18 */
-        @apply(--at-form-input-placeholder-error);
-        opacity: 1;
-      }
-
-      #contentContainer.error #valueProvider::-moz-placeholder {
-        /* Mozilla Firefox 19+ */
-        @apply(--at-form-input-placeholder-error);
-        opacity: 1;
-      }
-
-      #contentContainer.error #valueProvider:-ms-input-placeholder {
-        /* Internet Explorer 10-11 */
-        @apply(--at-form-input-placeholder-error);
-      }
-
-      .clear-float {
-        clear: both;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .error {
-        color: var(--at-error-color);
-      }
-
-      .disabled {
-        @apply(--at-form-disabled);
-      }
-
-      #atContainer {
-        @apply(--at-form-element);
-      }
-
-      #label {
-        @apply(--at-form-label);
-      }
-
-      #contentContainer.error {
-        @apply(--at-form-error-margins);
-      }
-
-      #contentContainer.error #valueProvider {
-        @apply(--at-form-content-error);
-      }
-
-      #errorHtml {
-        @apply(--at-form-error-font);
-      }
     </style>
     <div id="atContainer" class="at-container">
       <at-core-resize-sensor id="resizeSensor"></at-core-resize-sensor>
       <div class="clear-float"></div>
       <div>
-        <div id="labelContainer" class="at-label-container">
-          <label id="label" class="at-label">{{label}}</label>
-        </div>
+        <iron-label id="label" for="valueProvider">{{label}}</iron-label>
         <div id="contentContainer" class="at-content-container">
-          <textarea id="valueProvider" rows="3" class="at-content"></textarea>
+          <textarea id="valueProvider" rows="3" class="at-content has-placeholder"></textarea>
         </div>
-        <div id="hintContainer" class="at-hint-container">
-          <div id="errorHtml" class="hint"></div>
-        </div>
+        <div id="hint"></div>
       </div>
     </div>
   </template>
@@ -186,14 +99,14 @@
         maxCharsHint: "You can not enter more than {maxChars} characters.",
         maxLinesHint: "You can not enter more than {maxLines} lines of text."
       },
-      
+
       _errorMessageIds: {
         maxChars: "maxChars",
         maxLines: "maxLines"
       },
       _isReady: false,
       hideChanged: function(newValue, oldValue) {
-        var wrapper = Polymer.dom(this.root).querySelector('.wrapper');
+        var wrapper = this.$.atContainer;
         this.toggleClass('hidden', newValue, wrapper);
         if (!newValue) {
           this._updateAutoGrow();
@@ -204,7 +117,7 @@
         }
       },
       hideLabelChanged: function(newValue, oldValue) {
-        this.toggleClass('hidden', newValue, this.$.labelContainer);
+        this.toggleClass('hidden', newValue, this.$.label);
       },
       attached: function() {
         var self = this;
@@ -304,11 +217,11 @@
         }
       },
       disabledChanged: function(newValue, oldValue) {
-        
-        var atContainer = this.$.atContainer;                    
+
+        var atContainer = this.$.atContainer;
         this.toggleClass('disabled', newValue, atContainer);
         this.$.valueProvider.disabled = Boolean(newValue);
-        
+
         if (this._isReady) {
           this.validate();
         }
@@ -322,12 +235,12 @@
       // include _updateUIValidState function and implement it to update
       // the UI to reflect the new valid state
       _updateUIValidState: function(isValid) {
-        var labelContainer = this.$.labelContainer;
-        this.toggleClass('error', !isValid, labelContainer);
+        var label = this.$.label;
+        this.toggleClass('error', !isValid, label);
         var contentContainer = this.$.contentContainer;
         this.toggleClass('error', !isValid, contentContainer);
-        var hintContainer = this.$.hintContainer;
-        this.toggleClass('error', !isValid, hintContainer);
+        var hint = this.$.hint;
+        this.toggleClass('error', !isValid, hint);
       },
       // *ij* part of validation behavior API
       // this is a custom validation function which checks the max chars constraint
