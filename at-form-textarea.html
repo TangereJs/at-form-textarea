@@ -240,8 +240,6 @@
         this.toggleClass('error', !isValid, label);
         var contentContainer = this.$.contentContainer;
         this.toggleClass('error', !isValid, contentContainer);
-        var hint = this.$.hint;
-        this.toggleClass('error', !isValid, hint);
       },
       // *ij* part of validation behavior API
       // this is a custom validation function which checks the max chars constraint
@@ -280,6 +278,15 @@
         }
 
         return valid;
+      },
+      // this function is part of the hint/validation API
+      // hint should be displayed when element gains focus
+      // behavior can not know when element gained focus
+      // but if gived focusable element it can attach to its focus event
+      // it should return focusable element if available or null if focusable element doesn't exist
+      _getFocusableElement: function () {
+        var focusable = this.$.valueProvider;
+        return focusable;
       }
     });
   </script>
