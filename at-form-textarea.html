@@ -14,8 +14,8 @@
 
       :host {
         @apply(--at-form-host);
-      }     
-                    
+      }
+
       #hint {
         min-height: 14px;
         margin-bottom: 8px;
@@ -77,6 +77,11 @@
           type: Number,
           value: 0,
           observer: 'maxLinesChanged'
+        },
+        autogrowLineLimit: {
+          type: Number,
+          value: 6,
+          observer: 'autogrowLineLimitChanged'
         },
         hideLabel: {
           type: Boolean,
@@ -169,9 +174,17 @@
       _updateAutoGrow: function() {
         var self = this;
         try {
-          var maxLines = parseInt(self.maxLines);
-          if (maxLines === 0) {
-            self.autoGrowHelper();
+          var autogrowLineLimit = parseInt(self.autogrowLineLimit);
+          if (autogrowLineLimit === 0) {
+            self._autoGrowHelper();
+          } else {
+            var valueProvider = this.$.valueProvider;
+            var lineCount = this._getLineCount(valueProvider.value);
+            if (lineCount > this.autogrowLineLimit) {
+              valueProvider.style['overflow-y'] = "scroll";
+            } else {
+              valueProvider.style['overflow-y'] = "hidden";
+            }
           }
         } catch (e) {
           console.log(e);
@@ -191,6 +204,11 @@
         }
       },
       maxLinesChanged: function(newValue, oldValue) {
+        if (this._isReady) {
+          this.validate();
+        }
+      },
+      autogrowLineLimitChanged: function (newValue, oldValue) {
         var valueProvider = this.$.valueProvider;
 
         try {
@@ -203,19 +221,22 @@
         if (newValue === 0) {
           if (valueProvider.scrollHeight > 14) {
             // handle autogrow here
-            this.autoGrowHelper();
+            this._autoGrowHelper();
           }
+          valueProvider.style['overflow-y'] = "hidden";
         } else if (newValue > 0) {
           valueProvider.style.height = 'auto';
           // *ij* read #743 on adenin.axosoft.com
           valueProvider.rows = newValue;
-        }
-
-        if (this._isReady) {
-          this.validate();
+          var lineCount = this._getLineCount(this.value);
+          if (lineCount > newValue) {
+            valueProvider.style['overflow-y'] = "scroll";
+          } else {
+            valueProvider.style['overflow-y'] = "hidden";
+          }
         }
       },
-      autoGrowHelper: function() {
+      _autoGrowHelper: function() {
         var valueProvider = this.$.valueProvider;
         if (valueProvider.scrollHeight > 0) {
           valueProvider.style.height = 'auto';
@@ -272,8 +293,7 @@
         try {
           var maxLines = parseInt(this.maxLines);
           if (maxLines > 0) {
-            var lines = value.split("\n");
-            var lineCount = lines.length;
+            var lineCount = this._getLineCount(value);
             valid = (maxLines + 1) > lineCount;
 
             this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines);
@@ -283,6 +303,11 @@
         }
 
         return valid;
+      },
+      _getLineCount: function (text) {
+        var lines = text.split("\n");
+        var lineCount = lines.length;
+        return lineCount;
       },
       // this function is part of the hint/validation API
       // hint should be displayed when element gains focus
