@@ -138,6 +138,10 @@
         });
       },
       ready: function() {
+
+        this._errorMessageTemplates.maxCharsHint = this.T(this._errorMessageTemplates.maxCharsHint);
+        this._errorMessageTemplates.maxLinesHint = this.T(this._errorMessageTemplates.maxLinesHint);
+
         // *ij* part of validation behavior API
         // add custom validation functions to _validationFunctions array in validation behavior
         this._validationFunctions.push(this._validateMaxChars.bind(this));
