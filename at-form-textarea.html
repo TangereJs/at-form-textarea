@@ -108,8 +108,8 @@
       }],
       _errorMessage: '',
       _errorMessageTemplates: {
-        maxCharsHint: "You can not enter more than {maxChars} characters.",
-        maxLinesHint: "You can not enter more than {maxLines} lines of text."
+        maxCharsHint: "You can not enter more than {0} characters.",
+        maxLinesHint: "You can not enter more than {0} lines of text."
       },
 
       _errorMessageIds: {
@@ -283,7 +283,7 @@
             var charCount = value.length;
             valid = (maxChars + 1) > charCount;
 
-            this._errorMessage = this._errorMessageTemplates.maxCharsHint.replace("{maxChars}", this.maxChars);
+            this._errorMessage = this._errorMessageTemplates.maxCharsHint.replace("{0}", this.maxChars);
           }
         } catch (e) {
           console.log(e);
@@ -301,7 +301,7 @@
             var lineCount = this._getLineCount(value);
             valid = (maxLines + 1) > lineCount;
 
-            this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{maxLines}", this.maxLines);
+            this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{0}", this.maxLines);
           }
         } catch (e) {
           console.log(e);
