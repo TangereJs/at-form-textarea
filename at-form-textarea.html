@@ -17,6 +17,10 @@
         @apply(--at-form-host);
       }
 
+      #valueProvider {
+        height: auto;
+      }
+
       #hint {
         min-height: 14px;
         margin-bottom: 8px;
@@ -28,7 +32,7 @@
       <div>
         <iron-label id="label" for="valueProvider">{{label}}</iron-label>
         <div id="contentContainer" class="at-content-container">
-          <textarea id="valueProvider" rows="3" class="at-content has-placeholder"></textarea>
+          <textarea id="valueProvider" class="at-content has-placeholder"></textarea>
         </div>
         <div id="hint"></div>
       </div>
@@ -78,6 +82,11 @@
           type: Number,
           value: 0,
           observer: 'maxLinesChanged'
+        },
+        initialLines: {
+          type: Number,
+          value: 4,
+          observer: 'initialLinesChanged'
         },
         autogrowLineLimit: {
           type: Number,
@@ -177,23 +186,63 @@
         this.$.valueProvider.focus();
       },
       _updateAutoGrow: function() {
-        var self = this;
+        var valueProvider = this.$.valueProvider;
+        var lineCount = this._getLineCount(valueProvider.value);
+        this._handleAutoGrow(this.initialLines, this.autogrowLineLimit, lineCount);
+      },
+      _handleAutoGrow: function (initialLines, autogrowLineLimit, lineCount) {
+        var defaultInitialLines = this.properties.initialLines.value;
         try {
-          var autogrowLineLimit = parseInt(self.autogrowLineLimit);
-          if (autogrowLineLimit === 0) {
-            self._autoGrowHelper();
+          initialLines = parseInt(initialLines);
+          autogrowLineLimit = parseInt(autogrowLineLimit);
+        } catch (e) {}
+
+        if (initialLines === undefined || initialLines === null || initialLines < 1) {
+          initialLines = defaultInitialLines;
+        }
+        if (autogrowLineLimit === undefined || autogrowLineLimit === null || autogrowLineLimit < 0) {
+          autogrowLineLimit = this.properties.autogrowLineLimit.value;
+        }
+        var valueProvider = this.$.valueProvider;
+
+        if (autogrowLineLimit === 0) {
+          valueProvider.style['overflow-y'] = "hidden";
+          // textarea should autogrow
+          if (lineCount <= initialLines) {
+            valueProvider.rows = initialLines;
           } else {
-            var valueProvider = this.$.valueProvider;
-            var lineCount = this._getLineCount(valueProvider.value);
-            if (lineCount > this.autogrowLineLimit) {
-              valueProvider.style['overflow-y'] = "scroll";
+            valueProvider.rows = lineCount;
+          }
+        } else {
+          // textarea is bound by autogrowLineLimit
+          if (initialLines < autogrowLineLimit) {
+            if (lineCount >= initialLines && lineCount <= autogrowLineLimit) {
+              valueProvider.rows = lineCount;
             } else {
-              valueProvider.style['overflow-y'] = "hidden";
+              if (lineCount < initialLines) {
+                valueProvider.rows = initialLines;
+              } else {
+                valueProvider.rows = autogrowLineLimit;
+              }
+            }
+          } else {
+            if (lineCount >= defaultInitialLines && lineCount <= autogrowLineLimit) {
+              valueProvider.rows = lineCount;
+            } else {
+              if (lineCount < defaultInitialLines) {
+                valueProvider.rows = defaultInitialLines;
+              } else {
+                valueProvider.rows = autogrowLineLimit;
+              }
             }
           }
-        } catch (e) {
-          console.log(e);
+          if (lineCount > autogrowLineLimit) {
+            valueProvider.style['overflow-y'] = "scroll";
+          } else {
+            valueProvider.style['overflow-y'] = "hidden";
+          }
         }
+
       },
       valueChanged: function(newValue, oldValue) {
         var valueProvider = this.$.valueProvider;
@@ -214,39 +263,10 @@
         }
       },
       autogrowLineLimitChanged: function (newValue, oldValue) {
-        var valueProvider = this.$.valueProvider;
-
-        try {
-          newValue = parseInt(newValue);
-        } catch (e) {
-          console.log(e);
-          return;
-        }
-
-        if (newValue === 0) {
-          if (valueProvider.scrollHeight > 14) {
-            // handle autogrow here
-            this._autoGrowHelper();
-          }
-          valueProvider.style['overflow-y'] = "hidden";
-        } else if (newValue > 0) {
-          valueProvider.style.height = 'auto';
-          // *ij* read #743 on adenin.axosoft.com
-          valueProvider.rows = newValue;
-          var lineCount = this._getLineCount(this.value);
-          if (lineCount > newValue) {
-            valueProvider.style['overflow-y'] = "scroll";
-          } else {
-            valueProvider.style['overflow-y'] = "hidden";
-          }
-        }
+        this._updateAutoGrow();
       },
-      _autoGrowHelper: function() {
-        var valueProvider = this.$.valueProvider;
-        if (valueProvider.scrollHeight > 0) {
-          valueProvider.style.height = 'auto';
-          valueProvider.style.height = (valueProvider.scrollHeight + 3) + 'px';
-        }
+      initialLinesChanged: function (newValue, oldValue) {
+        this._updateAutoGrow();
       },
       disabledChanged: function(newValue, oldValue) {
 
