@@ -46,24 +46,28 @@
       properties: {
         label: {
           type: String,
-          value: ''
+          value: '',
+          title: 'Label'
         },
         value: {
           type: String,
           value: '',
           // notify: true,
           observer: 'valueChanged',
-          xtype: 'textarea'
+          xtype: 'textarea',
+          title: 'Value'
         },
         disabled: {
           type: Boolean,
           value: false,
-          observer: 'disabledChanged'
+          observer: 'disabledChanged',
+          title: 'Field value can not be changed'
         },
         required: {
           type: Boolean,
           value: false,
-          observer: 'requiredChanged'
+          observer: 'requiredChanged',
+          title: 'Input requred'
         },
         /**
          * if maxchars == 0 no check should be done,
@@ -72,7 +76,8 @@
         maxChars: {
           type: Number,
           value: 0,
-          observer: 'maxCharsChanged'
+          observer: 'maxCharsChanged',
+          title: 'Maximum number of characters'
         },
         /**
          * if maxlines == 0 the textarea should autogrow
@@ -107,7 +112,8 @@
         hide: {
           type: Boolean,
           value: false,
-          observer: 'hideChanged'
+          observer: 'hideChanged',
+          title: 'Field is invisible'
         },
       },
       $meta: [{
