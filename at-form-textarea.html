@@ -122,17 +122,6 @@
         type: "string",
         xtype: "textarea"
       }],
-      _errorMessage: '',
-      _errorMessageTemplates: {
-        maxCharsHint: "You can not enter more than {0} characters.",
-        maxLinesHint: "You can not enter more than {0} lines of text."
-      },
-
-      _errorMessageIds: {
-        maxChars: "maxChars",
-        maxLines: "maxLines"
-      },
-      _isReady: false,
       hideChanged: function(newValue, oldValue) {
         var wrapper = this.$.atContainer;
         this.toggleClass('hidden', newValue, wrapper);
@@ -154,9 +143,7 @@
         });
       },
       ready: function() {
-
-        this._errorMessageTemplates.maxCharsHint = this.T(this._errorMessageTemplates.maxCharsHint);
-        this._errorMessageTemplates.maxLinesHint = this.T(this._errorMessageTemplates.maxLinesHint);
+        this._isReady = false;
 
         // *ij* part of validation behavior API
         // add custom validation functions to _validationFunctions array in validation behavior
@@ -309,8 +296,9 @@
           if (maxChars > 0) {
             var charCount = value.length;
             valid = (maxChars + 1) > charCount;
-
-            this._errorMessage = this._errorMessageTemplates.maxCharsHint.replace("{0}", this.maxChars);
+            if (!valid) {
+              this._errorMessage = this.T("You can not enter more than {0} characters.", this.maxChars);
+            }
           }
         } catch (e) {
           console.log(e);
@@ -327,8 +315,9 @@
           if (maxLines > 0) {
             var lineCount = this._getLineCount(value);
             valid = (maxLines + 1) > lineCount;
-
-            this._errorMessage = this._errorMessageTemplates.maxLinesHint.replace("{0}", this.maxLines);
+            if (!valid) {
+              this._errorMessage = this.T("You can not enter more than {0} lines of text.", this.maxLines);
+            }
           }
         } catch (e) {
           console.log(e);
