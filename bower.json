@@ -1,7 +1,7 @@
 {
   "name": "at-form-textarea",
   "private": true,
-  "version": "0.0.1.4",
+  "version": "0.0.1.5",
   "dependencies": {
     "polymer": "Polymer/polymer#0.8-preview",
     "at-theme": "TangereJs/at-theme#0.8-preview",

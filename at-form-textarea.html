@@ -182,7 +182,12 @@
       _updateAutoGrow: function() {
         var valueProvider = this.$.valueProvider;
         var lineCount = this._getLineCount(valueProvider.value);
-        this._handleAutoGrow(this.initialLines, this.autogrowLineLimit, lineCount);
+        // *ij* 28.04.2016 (mm-dd-yyyy)
+        // in IE11 and FF this.initialLines and this.autogrowLineLimit are undefined when running maxLines test
+        // so ...
+        var initialLines = this.initialLines !== undefined ? this.initialLines : this.properties.initialLines.value;
+        var autogrowLineLimit = this.autogrowLineLimit !== undefined ? this.autogrowLineLimit : this.properties.autogrowLineLimit.value;
+        this._handleAutoGrow(initialLines, autogrowLineLimit, lineCount);
       },
       _handleAutoGrow: function (initialLines, autogrowLineLimit, lineCount) {
         var defaultInitialLines = this.properties.initialLines.value;

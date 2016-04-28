@@ -69,7 +69,7 @@
 
   <test-fixture id="maxLinesValidation">
     <template>
-      <at-form-textarea max-lines="3" value="This value \r\n has more than \r\n three lines. \r\n It has more."></at-form-textarea>
+      <at-form-textarea max-lines="3" value="This value &#13;&#10; has more than &#13;&#10; three lines. &#13;&#10; It has more."></at-form-textarea>
     </template>
   </test-fixture>
 
@@ -143,12 +143,12 @@
       test('max lines validation', function() {
         var input = fixture('maxLinesValidation');
         input.validate();
-        assert.equal(input.value, "This value \\r\\n has more than \\r\\n three lines. \\r\\n It has more.", 'value is not set correctly');
-        assert.equal(input.$.valueProvider.value, "This value \\r\\n has more than \\r\\n three lines. \\r\\n It has more.", 'value is not set correctly');
+        assert.equal(input.value, "This value \r\n has more than \r\n three lines. \r\n It has more.", 'value is not set correctly');
+        assert.equal(input.$.valueProvider.value, "This value \n has more than \n three lines. \n It has more.", 'value is not set correctly');
         assert.equal(input.maxLines, 3, 'maxLines is not set correctly');
         assert.equal(input.valid, false, 'element is not invalid');
-        assert.equal(input._errorMessage, "You can not enter more than 3 lines.", 'element error message is not set');
-        assert.equal(input.$.hint.innerHTML, "You can not enter more than 3 lines.", 'element error message is not set');
+        assert.equal(input._errorMessage, "You can not enter more than 3 lines of text.", 'element error message is not set');
+        assert.equal(input.$.hint.innerHTML, "You can not enter more than 3 lines of text.", 'element error message is not set');
       });
 
     });
