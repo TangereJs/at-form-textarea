@@ -5,7 +5,6 @@
   <meta charset="utf-8">
   <title>at-form-textarea demo</title>
   <script src="../webcomponentsjs/webcomponents-lite.js" charset="utf-8"></script>
-  <link rel="import" href="../polymer/polymer.html">
   <link rel="import" href="../layout/layout.html">
   <link rel="import" href="../at-form-textarea/at-form-textarea.html">
 
@@ -57,7 +56,7 @@
     </p>
   </div>
   <div>
-    <h4>Example 4: required</h4>    
+    <h4>Example 4: required</h4>
     <p>
       <at-form-textarea id="programmatic1" name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
     </p>
@@ -88,7 +87,7 @@
         valueEcho.innerHTML = e.detail.value;
       });
 
-      var programmatic = document.getElementById('programmatic1');      
+      var programmatic = document.getElementById('programmatic1');
       programmatic.value = "";
       programmatic.validate();
 
