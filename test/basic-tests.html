@@ -123,7 +123,7 @@
       test('errorMessage => valid = false', function() {
         var input = fixture('errorMessageValidFalse');
         assert.equal(input.errorMessage, 'demo error message', 'error message is correctly set');
-        assert.equal(input.valid, true, 'input is valid because error message is set as attribute');
+        assert.equal(input.valid, false, 'input is valid because error message is set as attribute');
         input.errorMessage = 'Another version of demo error message';
         assert.equal(input.errorMessage, 'Another version of demo error message', 'error message is correctly set');
         assert.equal(input.valid, false, 'input is invalid because error message is set as property');
@@ -131,23 +131,21 @@
 
       test('max chars validation', function() {
         var input = fixture('maxCharsValidation');
-        input.validate();
         assert.equal(input.value, "This value is over 10 chars", 'value is not set correctly');
         assert.equal(input.$.valueProvider.value, "This value is over 10 chars", 'value is not set correctly');
         assert.equal(input.maxChars, 10, 'maxChars is not set correctly');
+        var result = input.validate(true);
         assert.equal(input.valid, false, 'element is not invalid');
-        assert.equal(input._errorMessage, "You can not enter more than 10 characters.", 'element error message is not set');
         assert.equal(input.$.hint.innerHTML, "You can not enter more than 10 characters.", 'element error message is not set');
       });
 
       test('max lines validation', function() {
         var input = fixture('maxLinesValidation');
-        input.validate();
-        assert.equal(input.value, "This value \r\n has more than \r\n three lines. \r\n It has more.", 'value is not set correctly');
+        assert.equal(input.value, "This value \n has more than \n three lines. \n It has more.", 'value is not set correctly');
         assert.equal(input.$.valueProvider.value, "This value \n has more than \n three lines. \n It has more.", 'value is not set correctly');
         assert.equal(input.maxLines, 3, 'maxLines is not set correctly');
+        var result = input.validate(true);
         assert.equal(input.valid, false, 'element is not invalid');
-        assert.equal(input._errorMessage, "You can not enter more than 3 lines of text.", 'element error message is not set');
         assert.equal(input.$.hint.innerHTML, "You can not enter more than 3 lines of text.", 'element error message is not set');
       });
 
