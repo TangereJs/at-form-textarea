@@ -136,7 +136,7 @@
         assert.equal(input.maxChars, 10, 'maxChars is not set correctly');
         var result = input.validate(true);
         assert.equal(input.valid, false, 'element is not invalid');
-        assert.equal(input.$.hint.innerHTML, "You can not enter more than 10 characters.", 'element error message is not set');
+        assert.equal(input.$.hint.innerHTML, input.T("You can not enter more than {0} characters.", 10), 'element error message is not set');
       });
 
       test('max lines validation', function() {
@@ -146,7 +146,7 @@
         assert.equal(input.maxLines, 3, 'maxLines is not set correctly');
         var result = input.validate(true);
         assert.equal(input.valid, false, 'element is not invalid');
-        assert.equal(input.$.hint.innerHTML, "You can not enter more than 3 lines of text.", 'element error message is not set');
+        assert.equal(input.$.hint.innerHTML, input.T("You can not enter more than {0} lines of text.", 3), 'element error message is not set');
       });
 
     });

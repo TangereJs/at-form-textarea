@@ -235,7 +235,14 @@
 
       _valueChanged: function(newValue, oldValue) {
         var valueProvider = this.$.valueProvider;
-        valueProvider.value = newValue;
+
+        if (newValue === null) {
+          // if user sets at-form-text.value to null input should display initial value which is empty string
+          valueProvider.value = this.properties.value.value;
+        } else {
+          valueProvider.value = newValue;
+        }
+
         this._updateAutoGrow();
         if (this._isReady) {
           this._fireValueChangedEvent(newValue);
