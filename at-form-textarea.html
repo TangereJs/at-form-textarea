@@ -194,12 +194,12 @@
         valueProvider.addEventListener('change', function(event) {
           event.stopPropagation();
           self._updateAutoGrow();
-          self.validate(true);
+          self.validate();
         });
 
         valueProvider.addEventListener('blur', function(event) {
           event.stopPropagation();
-          self.validate(true);
+          self.validate();
         });
 
         valueProvider.addEventListener('input', function(event) {
@@ -251,7 +251,7 @@
 
       _internalUpdateValidState: function(disabled, required, maxChars, maxLines) {
         if (this._isReady) {
-          this.validate(true);
+          this.validate();
         }
       },
 
