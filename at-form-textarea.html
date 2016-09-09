@@ -174,7 +174,7 @@
       },
 
       observers: [
-        '_internalUpdateValidState(disabled, required, maxChars, maxLines)'
+        '_internalValidStateUpdate(disabled, required, maxChars, maxLines)'
       ],
 
       $meta: [{
@@ -208,7 +208,7 @@
         });
 
         this._isReady = true;
-        this._internalUpdateValidState(this.disabled, this.required, this.maxChars, this.maxLines);
+        this._internalValidStateUpdate(this.disabled, this.required, this.maxChars, this.maxLines);
       },
 
       attached: function() {
@@ -249,7 +249,7 @@
         }
       },
 
-      _internalUpdateValidState: function(disabled, required, maxChars, maxLines) {
+      _internalValidStateUpdate: function(disabled, required, maxChars, maxLines) {
         if (this._isReady) {
           this.validate();
         }
