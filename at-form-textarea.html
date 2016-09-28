@@ -174,7 +174,7 @@
       },
 
       observers: [
-        '_internalValidStateUpdate(disabled, required, maxChars, maxLines)'
+        '_internalValidStateUpdate(required, maxChars, maxLines)'
       ],
 
       $meta: [{
@@ -208,7 +208,7 @@
         });
 
         this._isReady = true;
-        this._internalValidStateUpdate(this.disabled, this.required, this.maxChars, this.maxLines);
+        this._internalValidStateUpdate(this.required, this.maxChars, this.maxLines);
       },
 
       attached: function() {
@@ -249,7 +249,7 @@
         }
       },
 
-      _internalValidStateUpdate: function(disabled, required, maxChars, maxLines) {
+      _internalValidStateUpdate: function(required, maxChars, maxLines) {
         if (this._isReady) {
           this.validate();
         }
@@ -272,7 +272,7 @@
 
         var validationResult = this._validateBaseData();
         if(showError) this._handleValidationResult(validationResult);
-        if (validationResult.isFinal) {
+        if (!validationResult.isValid) {
           return validationResult.isValid;
         }
 

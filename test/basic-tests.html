@@ -106,18 +106,18 @@
         assert.equal(input.$.atContainer.classList.contains('hidden'), true, 'container has hidden class');
       });
 
-      test('required and disabled => valid = true', function() {
+      test('required and disabled => valid = false', function() {
         var input = fixture('requiredAndDisabled');
         assert.equal(input.required, true, 'required property is true');
         assert.equal(input.disabled, true, 'disabled property is true');
-        assert.equal(input.valid, true, 'input is valid');
+        assert.equal(input.valid, false, 'input is valid');
       });
 
-      test('required and hidden => valid = true', function() {
+      test('required and hidden => valid = false', function() {
         var input = fixture('requiredAndHidden');
         assert.equal(input.required, true, 'required property is true');
         assert.equal(input.hide, true, 'hide property is true');
-        assert.equal(input.valid, true, 'input is valid');
+        assert.equal(input.valid, false, 'input is valid');
       });
 
       test('errorMessage => valid = false', function() {
