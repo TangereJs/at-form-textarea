@@ -26,7 +26,7 @@
 
   <test-fixture id="autovalidate">
     <template>
-      <at-form-textarea autovalidate></at-form-textarea>
+      <at-form-textarea auto-validate></at-form-textarea>
     </template>
   </test-fixture>
 
@@ -162,7 +162,7 @@
 
         test('autovalidate, do not show errors', function () {
           var element = fixture('propertyTests');
-          element.autovalidate = true;
+          element.autoValidate = true;
           element.required = true;
           element.value = "";
 
@@ -182,7 +182,7 @@
 
         test('autovalidate, do show errors', function () {
           var element = fixture('propertyTests');
-          element.autovalidate = true;
+          element.autoValidate = true;
           element.required = true;
           element.value = "";
 
