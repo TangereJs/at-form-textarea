@@ -9,7 +9,7 @@
     "at-form-behaviors": "TangereJs/at-form-behaviors#master",
     "at-core-resize-sensor": "TangereJs/at-core-resize-sensor#master",
     "iron-label": "PolymerElements/iron-label#master",
-    "layout": "polymer/layout#master",
+    "layout": "TangereJs/layout#master",
     "at-doc-viewer": "TangereJs/at-doc-viewer#master"
   }
 }
