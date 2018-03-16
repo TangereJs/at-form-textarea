@@ -4,13 +4,17 @@
 <head>
   <meta charset="utf-8">
   <title>at-form-textarea demo</title>
-  <script src="../webcomponentsjs/webcomponents-lite.js" charset="utf-8"></script>
-  <link rel="import" href="../at-form-textarea/at-form-textarea.html">
-  <link rel="import" href="../layout/layout.html">
+  <script src="../../webcomponentsjs/webcomponents-lite.js" charset="utf-8"></script>
+  <link rel="import" href="../../at-doc-snippet/at-doc-snippet.html" />
+  <link rel="import" href="../at-form-textarea.html">
 
-  <style media="screen">
+  <style>
     #valueEcho {
       border: 1px solid #AABBCC;
+    }
+
+    h4, p {
+      margin: 0 0 8px 0;
     }
 
     .controls-container {
@@ -26,74 +30,104 @@
 <body>
   <div>
     <h3>This is demo for at-form-textarea</h3>
-  </div>
-  <div>
     <p>The at-form-textarea has a label and input field</p>
     <p>Use <b>label</b> attribute to set the desired text to be displayed as label</p>
     <p>Use <b>type</b> property to set the input type</p>
   </div>
+
   <div>
     <h4>Example 1: value echo</h4>
     <p>
-      <at-form-textarea id="first" name="pera" type="text" label="Value echo" placeholder="This is placeholder..."></at-form-textarea>
-    </p>
-    <div>
       <b>Value echo: </b><span id="valueEcho"></span>
-    </div>
+    </p>
+    <at-doc-snippet id="firstSnippet">
+      <template>
+        <at-form-textarea id="first" label="Value echo"></at-form-textarea>
+      </template>
+    </at-doc-snippet>
   </div>
+
   <div>
     <h4>Example 2: error</h4>
     <p>Add <b>required</b> attribute to make at-form-textarea required</p>
-    <p>
-      <at-form-textarea name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
-    </p>
+    <at-doc-snippet>
+      <template>
+        <at-form-textarea label="This textarea is required" required auto-validate></at-form-textarea>
+      </template>
+    </at-doc-snippet>
   </div>
+
   <div>
     <h4>Example 3: disabled</h4>
     <p>Add <b>disabled</b> attribute to make at-form-textarea disabled</p>
-    <p>
-      <at-form-textarea name="pera" type="text" label="This is disabled input" placeholder="this is placeholder..." disabled></at-form-textarea>
-    </p>
+    <at-doc-snippet>
+      <template>
+        <at-form-textarea label="This textarea is disabled" disabled></at-form-textarea>
+      </template>
+    </at-doc-snippet>
   </div>
+
   <div>
-    <h4>Example 4: required</h4>
-    <p>
-      <at-form-textarea id="programmatic1" name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
-    </p>
+    <h4>Example 4: hidden label demo</h4>
+    <at-doc-snippet>
+      <template>
+        <at-form-textarea label="This is hidden label" hide-label></at-form-textarea>
+      </template>
+    </at-doc-snippet>
   </div>
+
+  <div>
+    <h4>Example 5: maxChars demo</h4>
+    <p>maxChars is set to 15</p>
+    <at-doc-snippet>
+      <template>
+        <at-form-textarea label="maxChars demo" max-chars="15" auto-validate></at-form-textarea>
+      </template>
+    </at-doc-snippet>
+  </div>
+
+  <div>
+    <h4>Example 6: required, value set in code</h4>
+    <at-doc-snippet on-content-changed="_handleP1ContentChanged">
+      <template>
+        <at-form-textarea id="p1" label="This textarea is required" required auto-validate></at-form-textarea>
+      </template>
+    </at-doc-snippet>
+  </div>
+
   <div>
     <h4>Example 5: required and value set programmatically</h4>
     <p>Value being set is not whitespace <code>"this is not whitespace"</code> </p>
-    <p>
-      <at-form-textarea id="programmatic2" name="pera" type="text" label="This is required input" placeholder="this is placeholder..." required></at-form-textarea>
-    </p>
+    <at-doc-snippet on-content-changed="_handleP2ContentChanged">
+      <template>
+        <at-form-textarea id="p2" label="This textarea is required" required auto-validate></at-form-textarea>
+      </template>
+    </at-doc-snippet>
   </div>
-  <div>
-    <h4>Example 6: hidden label demo</h4>
-    <at-form-textarea label="This is hidden label" placeholder="this is hidden label placeholder..." required hide-label="true"></at-form-textarea>
-  </div>
-  <div>
-    <h4>Example 6: maxChars demo</h4>
-    <p>maxChars is set to 15</p>
-    <at-form-textarea label="maxChars demo" placeholder="You can enter max 15 chars here ..." max-chars="15"></at-form-textarea>
-  </div>
-  <script>
-    document.addEventListener('WebComponentsReady', function (e) {
 
-      var firstAFI = document.getElementById('first');
+
+  <script>
+    document.addEventListener('WebComponentsReady', function () {
       var valueEcho = document.getElementById('valueEcho');
-      valueEcho.innerHTML = firstAFI.value;
-      firstAFI.addEventListener('value-changed', function (e) {
-        valueEcho.innerHTML = e.detail.value;
+      var firstSnippet = document.getElementById('firstSnippet');
+      firstSnippet.addEventListener('content-changed', function(event) {
+        var textarea = event.detail.querySelector('#first');
+
+        textarea.addEventListener('value-changed', function(event){
+          valueEcho.innerHTML = event.detail.value;
+        });
       });
 
-      var programmatic = document.getElementById('programmatic1');
-      programmatic.value = "";
-      programmatic.validate();
+      var p1 = document.getElementById('p1');
+      p1.value = "";
+      p1.validate();
 
-      var programmatic2 = document.getElementById('programmatic2');
-      programmatic2.value = "This is not whitespace";
+      var p2 = document.getElementById('p2');
+      p2.value = "This is not whitespace";
+      p2.validate();
     });
+
+
   </script>
 </body>
 
