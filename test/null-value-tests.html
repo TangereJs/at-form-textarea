@@ -70,8 +70,14 @@
     </template>
   </test-fixture>
 
+  <test-fixture id="propertyTests">
+    <template>
+      <at-form-textarea></at-form-textarea>
+    </template>
+  </test-fixture>
+
   <script>
-    suite('null value tests', function() {
+    suite('null value tests, value set as attribute', function() {
 
       test('attribute value set to null', function(done) {
         var input = fixture('attrNullValue');
@@ -276,13 +282,11 @@
           done();
         });
       });
-
-      /********************************************************************************/
-      /* Property value tests
-      /********************************************************************************/
-
+    });
+  
+    suite('null value tests, value set as property', function() {
       test('property value set to null', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.value = null;
 
         assert.equal(input.value, null, 'value not set correctly');
@@ -308,7 +312,7 @@
       });
 
       test('property value set to "null"', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.value = "null";
 
         assert.equal(input.value, "null", 'value not set correctly');
@@ -334,7 +338,7 @@
       });
 
       test('property value set to null and required', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.required = true;
         input.value = null;
 
@@ -360,7 +364,7 @@
       });
 
       test('property value set to "null" and required', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.required = true;
         input.value = "null";
 
@@ -387,7 +391,7 @@
       });
 
       test('property value set to null and maxChars', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.maxChars = 2;
         input.value = null;
 
@@ -414,7 +418,7 @@
       });
 
       test('property value set to "null" and maxChars', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.maxChars = 2;
         input.value = "null";
 
@@ -442,7 +446,7 @@
       });
 
       test('property value set to null and maxLines', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.maxLines = 1;
         input.value = null;
 
@@ -469,7 +473,7 @@
       });
 
       test('property value set to "null" and maxLines', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.maxLines = 1;
         input.value = "null";
 
@@ -497,7 +501,7 @@
       });
 
       test('property value set to null and user input is empty string', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.value = null;
 
         assert.equal(input.value, null, 'value not set correctly');
@@ -523,7 +527,7 @@
       });
 
       test('property value set to null and user input is non empty string', function(done) {
-        var input = document.createElement('at-form-textarea');
+        var input = fixture('propertyTests');
         input.value = null;
 
         assert.equal(input.value, null, 'value not set correctly');
